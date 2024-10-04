@@ -987,6 +987,123 @@ bool canConstruct(string ransomNote, string magazine) {
     return true;
 }
 
+int lengthOfLongestSubstring(string s) {
+    unordered_map<char, int> fmap;
+    int left = 0, right = 0;
+    int len = 0;
+    
+    while(right < s.size()){ 
+        if(fmap.find(s[right])!=fmap.end()) {
+            left = max(fmap[s[right]] + 1, left);
+        }
+        fmap[s[right]] = right;
+        len = max(right - left +1, len);
+        right++;
+    }
+    return len;
+    
+}
+// transpose matrix
+void transposeMat(vector<vector<int>>& mat){
+    int n = mat.size();
+    for (int i = 0; i < n; i++){
+        for (int j = i +1; j < n; j++){
+            swap(mat[i][j], mat[j][i]);
+        }
+    }
+}
+// reflect (reverse each row left to right)
+void reflect(vector<vector<int>>& mat){
+    int n = mat.size();
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n/2; j++){
+            swap(mat[i][j], mat[i][n-1 -j]);
+        }
+    }
+
+}
+// LC ::45
+// The idea is to use linear algebra method to rotate
+// rotate clockwise can be done using transpose a matrix 
+// followed by a reflect (reverse each row left to right)
+void rotate(vector<vector<int>>& matrix) {
+    transposeMat(matrix);
+    reflect(matrix);
+}
+
+// LC :: 205 
+// consider the case for "bad" & "coc" results false
+// we need two map to ensure no two char maps to the same char
+bool isIsomorphic(string s, string t) {
+    vector<char> map1(128, 0);
+    vector<char> map2(128, 0);
+    for (int i = 0; i < s.size(); i++){
+        if (map1[s[i]] == 0)
+            map1[s[i]] = t[i];
+        if (map2[t[i]] == 0)
+            map2[t[i]] = s[i];
+        if(map1[s[i]] != t[i] || map2[t[i]]!= s[i])
+            return false;            
+    }
+    return true;
+    
+}
+
+// LC :: 290
+// Same as the ismorphic string problem we need to maps to ensure
+// no two char/string maps to the same string/char
+void split2(string &s, char delim, vector<string> &tokens){
+    istringstream sStreams(s);
+    string token;
+    while(std::getline(sStreams, token, delim)){
+        tokens.push_back(token);
+    }
+}
+
+bool wordPattern(string pattern, string s) {
+    vector<string> tokens;
+    split2(s, ' ', tokens);
+    unordered_map<char, string> map1;
+    unordered_map<string, char> map2;
+    if (pattern.size() != tokens.size())
+        return false;
+    for (int i = 0; i < pattern.size(); i++) {
+        if (map1.find(pattern[i]) == map1.end())
+            map1[pattern[i]] = tokens[i];
+        if (map2.find(tokens[i]) == map2.end())
+            map2[tokens[i]] = pattern[i];
+        if (map1[pattern[i]] != tokens[i] || map2[tokens[i]] != pattern[i])
+            return false;
+    }
+    return true;
+    
+}
+
+vector<vector<string>> groupAnagrams(vector<string>& strs) {
+
+    vector<vector<string>> res;
+    unordered_map<string, vector<string>> grpMap;
+    for (string st : strs) {
+        int freq[26] = {0};
+        for (char ch : st){
+            freq[ch-'a']++;
+        }
+        string sb = "";
+        for (int i = 0; i <26; i++){
+            if (freq[i] != 0){
+                char c = 'a' + i;
+                sb+= c + to_string(freq[i]);
+            } 
+        }
+        grpMap[sb].push_back(st);
+    }
+    
+    for (auto [k,v] : grpMap){
+        res.push_back(v);
+    }
+    
+    return res;
+}
 int main(){
     return 0;
 }
