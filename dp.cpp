@@ -28,6 +28,34 @@ int maxSubArray(vector<int>& nums) {
     return maxSum;
 }
 
+// 918. Maximum Sum Circular Subarray
+// Use the kadane's algo to get rhe maximum sub array sum approach
+// so the solution would be either Kadane's maximum subarray sum or
+// if the wrapped around part can make better result
+// | sub array sum| min sub array sum | sub array sum|
+// if first + last portions add upto greater than the regular kadane's max sub array sum
+
+int maxSubarraySumCircular(vector<int>& nums) {
+    int curSum = 0;
+    int maxSum = nums[0];
+    int minSum = nums[0];
+    int totSum = 0;
+    int curMin = 0;
+    for (int n : nums) {
+        // Kadane's algo to max subarray sum
+        curSum = std::max(curSum + n, n);
+        maxSum = std::max(maxSum, curSum);
+        // Kadane's algo to min subarray sum
+        curMin = std::min(curMin + n, n);
+        minSum = std::min(curMin, minSum);
+        // total sum
+        totSum += n;
+    }
+    if (totSum == minSum) // if they are equal the diff would be zero
+        return maxSum;
+    return std::max(maxSum, totSum - minSum);
+}
+
 int maxSubArrayWithLimit(vector<int>& nums, int k){
     int runningSum = 0;
     int maxSum = 0;
@@ -107,13 +135,12 @@ int combinationSum4(vector<int>& nums, int target) {
 
 // LC :: 322 
 // Coin Change
-// The idea is to use dynamic programming to find the minimum number of coins needed to make up a given amount.
-// We create a dp array where dp[i] represents the minimum number of coins needed to make up the amount i.
-// We initialize the dp array with a value greater than the maximum possible number of coins (amount + 1).
-// We set dp[0] = 0 because no coins are needed to make up the amount 0. and when consider a patricular coin
-// we minus that from the amount to get the number of coins needed without that coin and + 1 for the current coin.
-// The other option is not consider this coin
+// The problem is asking if given an array of nums and a target you need reach the target with any combination from 
+// the array and you are allowed to use the same number any amount of time/
+// The KEY IDEA is you can use the same number any amoiunt of time then it becomes 
+// you have to check if the what is the best option using the all the options from the array
 // so the dp equation will be dp[i, j] = min(dp[i,j-coins[j]] + 1, dp[i-1,j])
+// or optimized DP equation dp(j) = min (dp[j-cn] + 1, dp[j])
 int coinChange(vector<int>& coins, int amount) {
     int max = amount +1;
     vector<int> dp(amount+1, max);
@@ -125,6 +152,116 @@ int coinChange(vector<int>& coins, int amount) {
     }
     return dp[amount] == amount + 1? -1 : dp[amount];       
 }
+
+// LC :: 518 
+// Coin Change II
+// Here the difference is we are asked to find out the number of combination that makes the solution
+// Because here we are asked to find # of comobination for each dp entry have to check the combinaton 
+// with the current coin and without the coin and add both combnination.
+// DP eqn : dp(i,j) = dp(i-1,j) + dp(i,j-coin(i)) 
+// opt dp eqn dp(j) = dp (j) + dp(j-cn)
+int change(int amount, vector<int>& coins) {
+    vector<int> dp(amount +1, 0);
+    dp[0] = 1;
+    for (int cn: coins) {
+        for (int j = cn; j <= amount; j++) {
+            dp[j] = dp[j] +  dp[j-cn];
+        }
+    }
+    return dp[amount];
+    
+}
+
+// LC :: 64
+
+int minPathSum(vector<vector<int>>& grid) {
+    unsigned int n = grid.size();
+    unsigned int m = grid[0].size();
+    vector<vector<int>> dp(n, vector<int> (m, 0));
+
+    for (unsigned int i = 0; i < n; i++) {
+        for (unsigned int j = 0; j < m; j++) {
+            if(i==0 && j==0)
+                dp[i][j] = grid[i][j];
+            else if(i == 0)
+                dp[i][j] = dp[i][j-1] + grid[i][j];
+            else if (j == 0)
+                dp[i][j] = dp[i-1][j] + grid[i][j];
+            else 
+                dp[i][j] = std::min(dp[i][j-1], dp[i-1][j]) + grid[i][j];
+        } 
+    }
+    return dp[n-1][m-1];
+}
+
+int minPathSum2(vector<vector<int>>& grid) {
+    unsigned int n = grid.size();
+    unsigned int m = grid[0].size();
+    vector<int> dp(m, 0);
+
+    for (unsigned int i = 0; i < n; i++) {
+        for (unsigned int j = 0; j < m; j++) {
+            if(i==0 && j==0)
+                dp[j] = grid[i][j];
+            else if(i == 0)
+                dp[j] = dp[j-1] + grid[i][j];
+            else if (j == 0)
+                dp[j] = dp[j] + grid[i][j];
+            else 
+                dp[j] = std::min(dp[j-1], dp[j]) + grid[i][j];
+        } 
+    }
+    return dp[m-1];
+}
+
+// LC :: 63
+
+int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+    unsigned int n = obstacleGrid.size();
+    unsigned int m = obstacleGrid[0].size();
+    vector<vector<int>> dp(n, vector<int> (m, 0));
+    dp[0][0] = 1;
+    for (int i = 1; i<n; i++) {
+        dp[0][i] = dp[0][i-1];
+        if(obstacleGrid[0][i] == 1)
+            dp[0][i] = 0;
+    }
+    for (int i = 1; i<m; i++) {
+        dp[i][0] = dp[i-1][0];
+        if(obstacleGrid[i][0] == 1)
+            dp[i][0] = 0;
+    }
+    for (unsigned int i = 1; i < n; i++) {
+        for (unsigned int j = 1; j < m; j++) {
+            if (obstacleGrid[i][j] == 1)
+                dp[i][j] = 0;
+            else
+                dp[i][j] = dp[i-1][j] + dp[i][j-1];
+        }
+    }
+    return dp[n-1][m-1];
+    
+}
+
+// optimized version
+
+int uniquePathsWithObstacles2(vector<vector<int>>& obstacleGrid) {
+    unsigned int n = obstacleGrid.size();
+    unsigned int m = obstacleGrid[0].size();
+    vector<int> dp(m, 0);
+    dp[0] = 1;
+    for (unsigned int i = 1; i < n; i++) {
+        for (unsigned int j = 1; j < m; j++) {
+            if (obstacleGrid[i][j] == 1)
+                dp[j] = 0;
+            else
+                dp[j] = dp[j] + dp[j-1];
+        }
+    }
+    return dp[m-1];
+}
+
+
 int main(){
     return 0;
 }
@@ -146,4 +283,70 @@ int lengthOfLIS(vector<int>& nums) {
     }
     return len;
     
+}
+
+// LC :: 788
+// Using DP this problem become O(n) time and space.
+// The brute force is also O(n*d) where d is the length of the digit, where d is close to 6 so O(n*d) == O(n)
+// But the DP approach is nice
+// The idea is to check if we can decompose the current digit to some previous digits which can be rotated
+// for example if the current digit is 212 we decompose it to 21 and 2 and check if 21 and 2 are rotatable
+// if true we mark this '212' as rotatable and increase count. Special case is number 0,1 and 8 where we the
+// dp state 1 indicates this is rotateble but if it forms with another digit with dp state 2
+// dp[i] = 2 if dp[i/10]>=1 and dp[i%10] >=1 valid rotatable number
+// dp[i] = 1 if dp[i/10] == 1  and dp[i%10] == 1 valid same number
+// else dp[i] = 0 invalid number
+int rotatedDigits(int n) {
+    vector<int> digits(n+1 , 0);
+    int count = 0;
+    digits[0] = 1;
+
+    for (int i = 1; i <= n; i++){
+        if (i < 10) {
+            if (i == 1 || i == 8 || i == 0) 
+                digits[i] = 1;
+            if (i == 2 || i == 5 || i == 6 || i == 9) {
+                digits[i] = 2;
+                count++;
+            }
+        } else {
+            if (digits[i/10] == 1 && digits[i%10] == 1){
+                digits[i] = 1;
+            }else if (digits[i/10] == 2 && digits[i%10] == 2) {
+                digits[i] = 2;
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+// non DP solution O(n*d) the DP solution is better and easy
+int rotatedDigits(int n) {
+    std::unordered_map<char, char> dict = {
+        {'0','0'},
+        {'1','1'},
+        {'8','8'},
+        {'2','5'},
+        {'5','2'},
+        {'6','9'},
+        {'9','6'}
+    };
+    int count = 0;
+    for (int i = 1; i<=n ; i++) {
+        string s = std::to_string(i);
+        string t="";
+        for (int i = 0; i < s.size(); i++) {
+            if (dict.find(s[i]) == dict.end())
+                break;
+            t.push_back(dict[s[i]]);
+        }
+        if (s.size() != t.size())
+            continue;
+        int val = std::stoi(t);
+        if(i!=val)
+            count++;
+        
+    }
+    return count;    
 }

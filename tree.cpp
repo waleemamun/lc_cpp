@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "tree.h"
+#include "list.h"
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -559,8 +560,238 @@ TreeNode* inorderSuccessor(TreeNode* root, TreeNode* p) {
 }
 
 
+bool isSameTree2(TreeNode* p, TreeNode* q) {
+    if (!p && !q)
+        return true;
+    if (p == nullptr || q == nullptr)
+        return false;
+    return (p->val == q->val) && 
+            isSameTree2(p->left, q->left) && 
+            isSameTree2(p->right, q->right);    
+}
+
+bool isSameTree(TreeNode* p, TreeNode* q) {
+    stack<TreeNode*> stk;
+    stk.push(q);
+    stk.push(p);
+    while(!stk.empty()) {
+        p = stk.top();
+        stk.pop();
+        q = stk.top();
+        stk.pop();
+        if (!p && !q)
+            continue;
+        if (p == nullptr || q == nullptr || p->val != q->val)
+            return false;
+        stk.push(q->right);
+        stk.push(p->right);
+        stk.push(q->left);
+        stk.push(p->left);
+    }
+    return true;
+}
+
+int postIdx = 0;
+TreeNode* bldTreeRec(vector<int>& inorder, vector<int>& postorder, int start, int end, unordered_map<int, int> &imap){
+    if (start > end)
+        return nullptr;
+    int val = postorder[postIdx++];
+    int idx = imap[val];
+    TreeNode* node = new TreeNode(val);
+    node->right = bldTreeRec(inorder, postorder, idx + 1, end, imap);
+    node->left = bldTreeRec(inorder, postorder, start, idx - 1, imap);
+    return node;
+}
+
+TreeNode* buildTree2(vector<int>& inorder, vector<int>& postorder) {
+    unordered_map<int, int> imap;
+    for (int i = 0; i < inorder.size(); i++) {
+        imap[inorder[i]] = i;
+    }
+    std::reverse(postorder.begin(), postorder.end());
+    return bldTreeRec(inorder, postorder, 0, inorder.size() -1, imap);
+}
+
+bool hasPathSum(TreeNode* root, int targetSum) {
+    if (root == nullptr)
+        return false;
+    if (!root->left && !root->right)
+        return (targetSum - root->val) == 0;
+
+    return hasPathSum(root->left, targetSum - root->val) || hasPathSum(root->right, targetSum - root->val);    
+}
+int smrTot;
+void sumNumRec(TreeNode* root, int sum) {
+    if (!root)
+        return;
+    if (!root->left && !root->right) {
+        sum+= root->val;
+        smrTot+= sum;
+        return;
+    }
+    sum += root->val;
+    sum *= 10;
+    sumNumRec(root->left, sum);
+    sumNumRec(root->right, sum);
+}
+
+class BSTIterator {
+private:
+    stack<TreeNode*> stk;
+    TreeNode* node;
+public:
+    BSTIterator(TreeNode* root) {
+        node = root;
+        while(node) {
+            stk.push(node);
+            node = node->left;
+        }
+    }
+    
+    int next() {
+        node = stk.top();
+        stk.pop();
+        int val = node->val;
+        node = node->right;
+        return val;
+    }
+    
+    bool hasNext() {
+        while(node){
+            stk.push(node);
+            node = node->left;
+        }
+        return !stk.empty();      
+    }
+};
+
+// LC :: 222
+
+int heightTree(TreeNode* root){
+    int h = 0;
+    while(root) {
+        root = root->left;
+        h++;
+    }
+    return h;
+}
+
+int countNodes(TreeNode* root) {
+    if (root == nullptr)
+        return 0;
+    int lh = heightTree(root->left);
+    int rh = heightTree(root->right);
+    if(lh > rh){
+        return ((1 << rh)) + countNodes(root->left);
+    } else {
+        return ((1 << lh)) + countNodes(root->right);
+    }
+    
+}
+
+// LC :: 637
+vector<double> averageOfLevels(TreeNode* root) {
+    queue<TreeNode*> q;
+    vector<double> res;
+    q.push(root);
+    while(!q.empty()) {
+        int sz = q.size();
+        long sum = 0;
+        for (int i = 0; i < sz; i++) {
+            TreeNode *node = q.front();
+            sum += node->val;
+            q.pop();
+            if (node->left)
+                q.push(node->left);
+            if (node->right)
+                q.push(node->right);
+        }
+        double avg = static_cast<double>(sum)/static_cast<double>(sz);
+        res.push_back(avg); 
+    }
+
+    return res;
+}
+class TrieNode {
+    public:
+        string val;
+        bool isEnd;
+        unordered_map<string, TrieNode*> children;
+        TrieNode(string v) : val(v), isEnd(false) {}
+        ~TrieNode() = default;
+};
+
+vector<string> removeSubfolders(vector<string>& folder) {
+    vector<string> res;
+    TrieNode *root = new TrieNode("*");
+
+    // create the trie from the path
+    for (string fl : folder) {
+        std::istringstream ism(fl);
+        string token;
+        TrieNode *cur = root;
+        while(std::getline(ism, token,'/')) {
+            if(cur->children.find(token) == cur->children.end()) {
+                cur->children[token] = new TrieNode(token);
+            }
+            cur = cur->children[token];
+        }
+        cur->isEnd = true;
+    }
+    // now remove the sub folders
+    for (string fl : folder){
+        std::istringstream ism(fl);
+        string token;
+        TrieNode* cur = root;
+        bool isSub = false;
+        while(std::getline(ism, token, '/')){
+            cur = cur->children[token];
+            if (cur->isEnd && ism.rdbuf()->in_avail() != 0){
+                isSub=true;
+                break;
+            } 
+        }
+        if (!isSub)
+            res.push_back(fl);
+    }
+    return res;
+}
 
 
+int sumNumbers(TreeNode* root) {
+    smrTot = 0;
+    sumNumRec(root, 0);
+    return smrTot;
+}
+
+// LC :: 1367
+// Lets try a dfs approach to solve this problem
+// The idea is to traverse the tree and for each node we will check if the node is the start of the
+// List. If it is then we will check if the List is present in the tree. If it is then we will
+// return true else we will continue the search. If we reach the end of the List then we will return true
+// as we have found the List in the tree. If we reach the end of the tree and the List is not found
+bool dfsVisit(ListNode* node, TreeNode* root){
+    if (!node) return true;
+    if (!root) return false;
+    if(node->val != root->val) 
+        return false;
+    else
+        return dfsVisit(node->next, root->left) || dfsVisit(node->next, root->right);
+}
+bool dfs(ListNode* node, TreeNode* root){
+    if (!root) return false;
+    if (dfsVisit(node, root))
+        return true;
+    else 
+        return dfs(node, root->left) || dfs(node, root->right);
+}
+
+bool isSubPath(ListNode* head, TreeNode* root) {
+    if (!head||!root)
+        return false;
+    return dfs(head, root);
+    
+}
 
 int main()
 {

@@ -14,10 +14,13 @@
 #include <functional>
 #include <cstdlib>
 #include <sstream>
+#include <list>
 #include "tree.h"
 using namespace std;
 
-int removeDuplicates(vector<int>& nums) {
+// LC :: 80
+
+int removeDuplicates2(vector<int>& nums) {
     int j = 0;
     if (nums.size()== 0) return 0;
     int last = nums[0];
@@ -30,6 +33,54 @@ int removeDuplicates(vector<int>& nums) {
     }
     return j;
         
+}
+
+// use this approach as its more generic same can be used for LC :: 26
+int removeDuplicates(vector<int>& nums) {
+    if (nums.size()==0)
+        return 0;
+    int cur = 0;
+    for (int i = 0; i < nums.size(); i++){
+        if (i < 2 || nums[i]!= nums[cur-2])
+            nums[cur++] = nums[i];
+    }
+    return cur;
+        
+}
+
+// LC :: 26 
+int removeDuplicatesEasy(vector<int>& nums) {
+    int cur = 0;
+    for (int i = 0; i < nums.size(); i++){
+        if(i<1 ||nums[cur-1]!=nums[i])
+            nums[cur++] = nums[i];
+    }
+    return cur;
+}
+// LC :: 169
+int majorityElement(vector<int>& nums) {
+    int candidate = 0;
+    int count = 0;
+    for (int n:nums){
+        if (count == 0){
+            candidate = n;
+            count=1;
+        } else if (candidate == n)
+            count++;
+        else
+            count--;
+    }
+
+    count = 0;
+    for (int n:nums) {
+        if(n == candidate)
+            count++;
+    }
+    if (count>nums.size()/2)
+        return candidate;
+    else
+        return INT_MIN;
+    
 }
 
 void rotate(vector<int>& nums, int k) {
@@ -1104,6 +1155,655 @@ vector<vector<string>> groupAnagrams(vector<string>& strs) {
     
     return res;
 }
+
+// LC ::202
+
+int nextNum(int n) {
+    int res = 0;
+    while(n){
+        res += (n%10)*(n%10);
+        n/=10;
+    }
+    return res;
+} 
+bool isHappy(int n) {
+    unordered_set<int> cSet;
+    while(n!=1) {
+        n = nextNum(n);
+        if(cSet.find(n)!=cSet.end())
+            return false;
+        cSet.insert(n);
+    }
+    return n == 1;
+}
+
+// LC :: 128
+
+int longestConsecutive2(vector<int>& nums) {
+    unordered_map<int, int> hMap;
+    for (auto n : nums) {
+        hMap[n] += 1;
+    }
+    int maxLen = 0;
+    for (const auto& [k,v] : hMap) {
+        if (v == 0)
+            continue;
+        int len = 1;
+        int size =  k+nums.size();
+        for (int i = k +1; i <size; i++) {
+            if (hMap.find(i) != hMap.end()){
+                len++;
+                hMap[i] = 0;
+            } else 
+                break;
+        }
+        maxLen = std::max(maxLen, len);
+        hMap[k] = 0;
+    }
+    return maxLen;   
+}
+
+int longestConsecutive(vector<int>& nums) {
+    unordered_set<int> hSet(nums.begin(), nums.end());
+    int maxlen = 0;
+    for (int n: nums){
+        int len = 0;
+        if (hSet.count(n-1))
+            continue;
+        int cur = n;
+        while(hSet.count(cur)){
+            cur++;
+            len++;
+        }
+        maxlen = ::max(maxlen, len);
+    }
+    return maxlen;   
+}
+
+
+// LC :: 228
+// The version 1 is more easy to read and think, same complxity though
+vector<string> summaryRanges(vector<int>& nums) {
+    vector<string> res;
+    int i = 0;
+    while (i < nums.size()){
+        int last = nums[i];
+        int len = 0;
+        while (i + 1 < nums.size() && nums[i+1] == 1 + nums[i]) {
+            i++;
+            len++;
+        }
+        string s = std::to_string(last);
+        if (len != 0){
+            s+= "->" + std::to_string(nums[i]);
+        }
+        res.push_back(s);
+        i++;
+    }
+    return res;
+}
+
+vector<string> summaryRanges2(vector<int>& nums) {
+        vector<string> res;
+        if (nums.size() == 0) return res;
+        int i = 0;
+        int last = nums[0];
+        for(i = 1; i <= nums.size(); i++){
+            if(i==nums.size() || (nums[i] != nums[i-1] +1)){
+                if (last == nums[i-1])
+                    res.push_back(std::to_string(last));
+                else {
+                    string s = std::to_string(last)+"->"+std::to_string(nums[i-1]);
+                    res.push_back(s);
+                }
+                if (i != nums.size())
+                    last = nums[i];
+            } 
+        }
+        return res;        
+}
+
+// LC :: 452
+// The idea is very simple here, if we sort the intervals based on the end interval and then check how many 
+// intervals can be covered by this end time then all the covered interval are concurrent interval and can
+// be counted as one concurency, we keep counting how many concurrency possible throughout the time.
+// This works here because consider one interval that is part of multple concurencey if count it in one of 
+// it that is fine cause its needs to be counted once
+int findMinArrowShots(vector<vector<int>>& points) {
+    auto cmp = [](vector<int> &a, vector<int> &b){ return a[1]<b[1];};
+    std::sort(points.begin(), points.end(), cmp);
+    int count = 0;
+    int last = points[0][1];
+    for (auto p : points) {
+        if (last < p[0]){
+            count++;
+            last = p[1]; 
+        }
+    }
+    // for the last one that is never counted in the loop
+    count++;
+    return count;
+}
+
+// LC :: 20 
+bool isValid(string s) {
+    stack<int> stk;
+    unordered_map<char, char> cmap = {{')','('}, {'}', '{'}, {']','['}};
+    for (char ch : s){
+        if (ch == '(' || ch == '{' || ch == '['){
+            stk.push(ch);
+        } else {
+            if(stk.empty() || stk.top() != cmap[ch])
+                return false;
+            stk.pop();
+        }
+    }
+    return stk.size() == 0;    
+}
+
+// LC:: 71
+string simplifyPath(string path) {
+    vector<string> dirs;
+    split2(path, '/', dirs);
+    list<string> dStack;
+    for(string s : dirs) {
+        if(s == "..") {
+            if (!dStack.empty())
+                dStack.pop_back();
+        } else {
+            if (s != "" && s != ".")
+                dStack.push_back(s);
+        }
+    }
+    string res="/";
+    if (dStack.empty()) return res;
+    while (!dStack.empty()){
+        res+= dStack.front()+"/";
+        dStack.pop_front();
+    }
+    res.pop_back();
+    return res;
+}
+
+// LC :: 150
+
+int evalRPN(vector<string>& tokens) {
+    stack<int> oprnds;
+    for (string t : tokens){
+        if(t == "+" || t == "-" || t == "*" || t == "/") {
+            int left = 0, right = 0;
+            
+            if (!oprnds.empty()) {
+                right = oprnds.top();
+                oprnds.pop();
+            } 
+            if (!oprnds.empty()) {
+                left = oprnds.top();
+                oprnds.pop();
+            }
+            if (t == "+")
+                oprnds.push(left + right);
+            else if (t == "-")
+                oprnds.push(left - right);
+            else if (t == "*")
+                oprnds.push(left * right);
+            else
+                oprnds.push(left / right);
+            
+        } else {
+            oprnds.push(std::stoi(t));
+        }
+    }
+    return oprnds.top();
+}
+// LC :: 227 
+
+int calculate(string s) {
+    int res = 0;
+    int prev = 0;
+    long cur = 0;
+    char sign = '+';
+    for (int i = 0; i <s.size(); i++){
+        if(std::isdigit(s[i])){
+            cur = cur * 10 + s[i] - '0';
+        }
+        if (!std::isdigit(s[i]) && s[i] != ' ' || i == s.size() - 1){
+            if(sign == '+'){
+                res+= prev;
+                prev = cur;
+            } else if(sign == '-'){
+                res+=prev;
+                prev = -cur;
+            } else if(sign == '*'){
+                prev = prev * cur;
+            } else if(sign == '/'){
+                prev = prev / cur;
+            }
+            cur = 0;
+            sign = s[i];
+        }
+    }
+    return res+ prev;
+
+}
+int calculate2(string s) {
+    stack<int> stk;
+    long val = 0;
+    int res = 0;
+    int prod = 1;
+    char sign = '+';
+    for (int i = 0; i < s.size(); i++) {
+        if(std::isdigit(s[i])){
+            val = val * 10 + s[i]-'0';
+        } 
+        if(!std::isdigit(s[i]) && s[i] != ' ' || i == s.size()-1) {
+            if (sign == '+'){
+                stk.push(val);
+            } else if (sign == '-') {
+                stk.push(-val);
+            } else if (sign == '*') {
+                int prd = stk.top() * val;
+                stk.pop();
+                stk.push(prd);
+            } else if (sign =='/'){
+                int prd = stk.top() / val;
+                stk.pop();
+                stk.push(prd);
+            }
+            sign = s[i];
+            val = 0;
+        }
+    }
+    while (!stk.empty()) {
+        res += stk.top();
+        stk.pop();
+    }
+    return res;
+    
+}
+
+// LC :: 224
+int calculate3(string s) {
+    stack<int> stk;
+    int res = 0;
+    int val = 0;
+    int sign = 1;
+    for (int i = 0; i<s.size(); i++) {
+        if (std::isdigit(s[i])){
+            val = val *10 + s[i]-'0';
+        } else if (s[i] == '+') {
+            res += val * sign;
+            sign = 1;
+            val = 0;
+        } else if (s[i] == '-') {
+            res += val * sign;
+            sign = -1;
+            val = 0;
+        } else if (s[i] == '(') {
+            stk.push(res);
+            stk.push(sign);
+            res = 0;
+            val = 0;
+        } else if (s[i]==')') {
+            res+= val * sign;
+            res *= stk.top();
+            stk.pop();
+            res += stk.top();
+            stk.pop();
+            val = 0;
+        }
+    }
+    res+= val * sign;
+    return res;
+}
+
+// LC :: 179
+
+string largestNumber(vector<int>& nums) {
+    vector<string> numstr;
+    for (auto n : nums) {
+        numstr.push_back(std::to_string(n));
+    }
+    auto cmp = [](string o1, string o2){ 
+        string s1 = o1+o2;
+        string s2 = o2+o1;
+        return s2>s1;
+            };
+    std::sort(numstr.begin(), numstr.end(), cmp);
+    if (numstr.size() > 0 && numstr[0] == "0")
+        return "0";
+    string res="";
+    for (string ns : numstr) {
+        res+= ns;
+    }
+    return res;
+}
+
+
+// LC :: 621
+
+int leastInterval(vector<char>& tasks, int n) {
+    unordered_map<char, int> fmap;
+    for (char t : tasks) {
+        fmap[t]++;
+    }
+    auto cmp = [&fmap](char c1, char c2){ return fmap[c1] < fmap[c2]; };
+    priority_queue<char, vector<char>, decltype(cmp)> maxHeap(cmp); 
+    for (auto [k,v] : fmap){
+        maxHeap.push(k);
+    }
+    int totTime = 0;
+    while (!maxHeap.empty()) {
+        int idleCount = n +1;
+        queue<char> tempQ; 
+        while (!maxHeap.empty() && idleCount > 0) {
+            char ts = maxHeap.top();
+            maxHeap.pop();
+            fmap[ts]--;
+            idleCount--;
+            totTime++;
+            if (fmap[ts] > 0)
+                tempQ.push(ts);
+        }
+        if (tempQ.size() != 0)
+            totTime += idleCount;
+        while (!tempQ.empty()){
+            maxHeap.push(tempQ.front());
+            tempQ.pop();
+        } 
+    }
+    return totTime;
+    
+}
+
+// LC :: 1055
+int shortestWay(string source, string target) {
+    unordered_map<char, set<int>> smap;
+    for (int i = 0; i < source.size(); i++) {
+        smap[source[i]].insert(i);
+    }
+    int sid = 0;
+    int count = 1;
+    int i = 0;
+    while(i < target.size()) {
+        if (smap.find(target[i]) == smap.end())
+            return -1;
+        set<int> idList = smap[target[i]];
+        auto itc = idList.lower_bound(sid);
+        if (itc == idList.end()) {
+            count++;
+            sid = 0;
+        } else {
+            sid = *itc + 1;
+            i++;
+        }
+    }
+    return count;
+    
+}
+
+// LC :: 239
+// The idea is to use a monotonic queue
+vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+    deque<int> dq;
+    vector<int> res;
+
+    for (int i = 0; i < nums.size(); i++) {
+        
+        if(!dq.empty() && dq.front() < i - k + 1)
+            dq.pop_front();
+
+        while(!dq.empty() && nums[dq.back()] <= nums[i]) {
+            dq.pop_back();
+        }
+        dq.push_back(i);
+        if (i >= k - 1)
+            res.push_back(nums[dq.front()]);
+    }
+    return res;
+}
+
+// LC :: 739 
+
+// Stack version this uses the same idea as monotonic queue but as we only 
+// pop push at the back we can replace deque with a stack
+vector<int> dailyTemperatures3(vector<int>& temperatures) {
+    vector<int> ans(temperatures.size(),0);
+    stack<int> dq;
+    for (int i = 0; i < temperatures.size(); i++) {
+        while(!dq.empty() && temperatures[dq.top()] < temperatures[i]) {
+            ans[dq.top()] = i - dq.top();
+            dq.pop();
+        }
+        dq.push(i);
+    }
+    return ans;
+    
+}
+
+// decreasing monotonic queue version
+vector<int> dailyTemperatures2(vector<int>& temperatures) {
+    vector<int> ans(temperatures.size(),0);
+    deque<int> dq;
+    for (int i = 0; i < temperatures.size(); i++) {
+        while(!dq.empty() && temperatures[dq.back()] < temperatures[i]) {
+            ans[dq.back()] = i - dq.back();
+            dq.pop_back();
+        }
+        dq.push_back(i);
+    }
+    return ans;    
+}
+
+//  Still sceptical about the solution rather pick mononic queu
+// Using the right array to track the last big item this will give a faster result 
+//
+vector<int> dailyTemperatures(vector<int>& temperatures) {
+    vector<int> ans(temperatures.size(),0);
+    vector<int> right(temperatures.size(), temperatures.size());
+    
+    for (int i = temperatures.size() -1; i >= 0; i--) {
+        int j = i + 1;
+        while(j < temperatures.size() && temperatures[i] >= temperatures[j]) {
+            j = right[j];
+        }
+        right[i] = j;
+        ans[i] = right[i] == temperatures.size() ? 0:right[i] - i;
+    }
+    return ans;
+}
+
+// LC :: 692
+// use are frequency based minheap to get the k most frequent item
+vector<string> topKFrequent(vector<string>& words, int k) {
+    unordered_map<string, int> freq;
+    for (string w : words) {
+        freq[w]++;
+    }
+    auto cmp = [&freq](string s1, string s2){ 
+        if (freq[s1] == freq[s2])
+            return s1 < s2;
+        else
+            return freq[s1] > freq[s2]; };
+    priority_queue<string,vector<string>,decltype(cmp)> minHeap(cmp);
+    for (auto [w, v]: freq) {
+        minHeap.push(w);
+        if (minHeap.size()> k)
+            minHeap.pop();
+
+    }
+    vector<string> res;
+    int j = k-1;
+    while(!minHeap.empty()) {
+        res[j--] = minHeap.top();
+        minHeap.pop();
+    }
+    return res;    
+}
+
+// LC :: 373
+// This is a really good problem think who many options are there once you pick a pair
+// bascially you start wiht (0,0) and then options are (1,0) and (0, 1) after assume we pick 
+// (1, 0) then the next options are (2, 0) and (1,1) How? The pattern is if the current pair 
+// is (i,j) then you pick (i + 1, j) and (i, j+ 1) due to the sorted propoerty of the both arrays
+// Now we use minheap based inmplementation to find the k smallest pairs, midheap {sum of pair, id1, id2}
+vector<vector<int>> kSmallestPairs(vector<int>& nums1, vector<int>& nums2, int k) {
+    priority_queue<pair<int, pair<int,int>>, 
+                    vector<pair<int, pair<int,int>>>,
+                    greater<pair<int, pair<int,int>>>> minHeap;
+    int m = nums1.size();
+    int n = nums2.size();
+    vector<vector<int>> res;
+    set<pair<int, int>> visited;
+    minHeap.push({nums1[0] + nums2[0], {0,0}});
+    visited.insert({0,0});
+
+    while(!minHeap.empty() && k--) {
+        auto smallest = minHeap.top();
+        minHeap.pop();
+        int i = smallest.second.first;
+        int j = smallest.second.second;
+        res.push_back({nums1[i], nums2[j]});
+        if (i + 1 < m && !visited.count({i + 1, j})) {
+            visited.insert({i + 1, j});
+            minHeap.push({nums1[i+1] + nums2[j], {i + 1, j}});
+        }
+        if (j + 1 < n && !visited.count({i, j + 1})) {
+            visited.insert({i, j + 1});
+            minHeap.push({nums1[i] + nums2[j+1], {i , j + 1}});
+        }
+    }
+    return res;
+    
+}
+
+// LC :: 992
+
+int subArrayCountWithAtMostK(vector<int>& nums, int k) {
+    unordered_map<int, int> numMap;
+    int l = 0, r = 0;
+    int n = nums.size();
+    int unique = 0;
+    int count = 0;
+    while(r < n) {
+        numMap[nums[r]]++;
+        if (numMap[nums[r]] == 1)
+            unique++;
+        while (unique == k + 1) {
+            numMap[nums[l]]--;
+            if (numMap[nums[l]] == 0)
+                unique--;
+            l++;
+        }
+        count += r - l +1;
+        r++;
+    }
+    return count;
+
+}
+
+int subarraysWithKDistinct(vector<int>& nums, int k) {
+    return subArrayCountWithAtMostK(nums, k) - subArrayCountWithAtMostK(nums, k -1);
+}
+
+// LC :: 67 
+// A good idea is to always have the longer value assign to the first param
+// another trick is for binary carry can be used calc both sum and carry
+// sum= carry%2 carry = carry/2
+string addBinary(string a, string b) {
+    int n = a.size(), m = b.size();
+    if (n < m)
+        return addBinary(b, a);
+    int carry = 0;
+    int j = m - 1;
+    string res;
+    for (int i = n-1; i>=0; i--){
+        if(a[i] == '1')
+            carry++;
+        if (j >= 0 &&b[j--]=='1')
+            carry++;
+        int sum = carry%2;
+        carry /= 2;
+        res.push_back(sum+'0');
+    }
+    // process last carry 
+    if (carry == 1)
+        res.push_back('1');
+    std::reverse(res.begin(), res.end());
+    return res;
+}
+
+// LC :: 502
+// Build vector of profit & captial together to easily handle the code
+// We need to use a greedy approach, first sort the new vector with ascending capital order
+// we start with w capital and push as many element possible to the maxheap, then pick the 
+// most profitalble one and update the capital now we can cover more items from the list.
+// after inserting them we pick the best profitable option from the maxHeap
+int findMaximizedCapital(int k, int w, vector<int>& profits, vector<int>& capital) {
+    vector<pair<int,int>> cap_prof;
+    for (int i = 0; i < profits.size(); i++) {
+        cap_prof.push_back({capital[i], profits[i]});
+    }
+    auto cmp = [](pair<int,int> &a, pair<int, int> &b){ return a < b;};
+    std::sort(cap_prof.begin(), cap_prof.end(), cmp);
+    int i = 0;
+    priority_queue<int,vector<int>> maxHeap;
+    while (k > 0) {
+        while(i<cap_prof.size() && w >= cap_prof[i].first) {
+            maxHeap.push(cap_prof[i++].second);
+        }
+        if(maxHeap.empty())
+            break;
+        w += maxHeap.top();
+        maxHeap.pop();
+        k--;
+    }
+    return w;
+}
+
+// LC :: 172
+// We need to find out how many factor of 5 we have for the number n 
+// there are always ample factors of 2 in the factorial so just need count factors of 5
+// also note for 100 25 is factor of two '5's and it needs to be counted so is all other 
+// factors of 5's
+int trailingZeroes(int n) {
+    int res = 0;
+    for (int i = 5; (n/i) >0; i*=5) {
+        res += (n/i);
+    }
+    return res;
+}
+
+// LC :: 88
+
+void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
+    unsigned int l = m + n -1;
+    while (n > 0){
+        if(m > 0 && nums1[m-1] >= nums2[n-1]){
+            nums1[l] = nums1[m-1];
+            m--;
+        } else {
+            nums1[l] = nums2[n-1];
+            n--;
+        }
+        l--;
+    }
+}
+
+// LC :: 27
+
+int removeElement(vector<int>& nums, int val) {
+    unsigned int j = 0;
+    for (unsigned int i = 0; i < nums.size(); i++) {
+        if (nums[i] != val){
+            nums[j++] = nums[i];
+        }
+    }
+    return j;
+}
+
+
+
 int main(){
     return 0;
 }

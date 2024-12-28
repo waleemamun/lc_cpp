@@ -204,6 +204,284 @@ ListNode* mergeInBetween(ListNode* list1, int a, int b, ListNode* list2) {
     return dummy->next;
 }
 
+// LC :: 148
+
+ListNode* mergeList(ListNode* l1, ListNode* l2) {
+    ListNode* dummy = new ListNode();
+    ListNode* prev = dummy;
+    while(l1 && l2) {
+        if(l1->val <= l2->val){
+            prev->next = l1;
+            l1 = l1->next;
+        } else {
+            prev->next = l2;
+            l2 = l2->next;
+        }
+        prev = prev->next;
+    }
+    prev->next = (l1 == nullptr) ? l2:l1;
+    return dummy->next; 
+}
+
+ListNode* mergeSort(ListNode* head){
+    if(head == nullptr || head->next == nullptr)
+        return head;
+    ListNode *slow = head;
+    ListNode *fast = head->next;
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    ListNode* nextHead = slow->next;
+    slow->next = nullptr;
+    ListNode *l1 = mergeSort(head);
+    ListNode *l2 = mergeSort(nextHead);
+    return mergeList(l1, l2);
+}
+
+ListNode* sortList(ListNode* head) {
+    return mergeSort(head);
+}
+
+ListNode* mergeKLists(vector<ListNode*>& lists) {
+    auto cmp = [](ListNode* l1, ListNode* l2) {return l1->val > l2->val;};
+    priority_queue<ListNode*, vector<ListNode*>, decltype(cmp)> minHeap(cmp);
+    for (auto ls : lists){
+        if(ls)
+            minHeap.push(ls);
+    }
+    ListNode *dummy = new ListNode();
+    ListNode *cur = dummy;
+    while(!minHeap.empty()){
+        ListNode* temp = minHeap.top();
+        minHeap.pop();
+        if (temp->next)
+            minHeap.push(temp->next);
+        cur->next = temp;
+        cur = cur->next;
+    }
+    return dummy->next;
+}
+
+class Node {
+public:
+    int val;
+    Node* next;
+    Node* random;
+    
+    Node(int _val) {
+        val = _val;
+        next = NULL;
+        random = NULL;
+    }
+};
+
+Node* copyRandomList(Node* head) {
+    Node* dummy = new Node(-1);
+    Node* cp = dummy;
+    Node* cur = head;
+    // stich orig node next to point to the copy list node
+    // each orig node next pointer points to their deep copy 
+    // and the new deep copy node points to the orig next node
+    while(cur) {
+        Node* n = new Node(cur->val);
+        n->next = cur->next;
+        cur->next = n;
+        cur = n->next;
+    }
+
+    cur = head;
+    // now adjust the random pointers
+    while (cur) {
+        if (cur->random) {
+            cur->next->random = cur->random->next;
+        }
+        cur = cur->next->next;
+    }
+    cur = head;
+    while(cur) {
+        Node *nc = cur->next->next;
+        cp->next = cur->next;
+        cp = cp->next;
+        cur->next = nc;
+        cur = nc;
+    }
+
+    return dummy->next;
+
+    
+}
+
+ListNode* removeNthFromEnd(ListNode* head, int n) {
+    ListNode *cur = head;
+    ListNode* dummy = new ListNode(-1);
+    dummy->next = head;
+    while(cur && n) {
+        cur = cur->next;
+        n--;
+    }
+    ListNode *prev = cur ? head : dummy;
+    while(cur && cur->next) {
+        prev = prev->next;
+        cur = cur->next;
+    }
+    ListNode *nx = prev->next;
+    prev->next = nx->next;
+    
+    return dummy->next;
+}
+
+ListNode* rotateRight(ListNode* head, int k) {
+    int n = 0;
+    ListNode *dummy = new ListNode(-1);
+    dummy->next = head;
+    ListNode *cur = head, *end = dummy; 
+    while(cur) {
+        n++;
+        cur = cur->next;
+        end = end->next;
+    }
+    if (n == 0 || k%n == 0) return head;
+    k = k % n;
+    k = n - k -1;
+    cur = head;
+    while(cur && k--) {
+        cur = cur->next;
+    }
+    end->next = dummy->next;
+    dummy->next = cur->next;
+    cur->next = nullptr;
+    return dummy->next;    
+}
+
+ListNode* partition(ListNode* head, int x) {
+    ListNode* dmSm = new ListNode();
+    ListNode* dmBg = new ListNode();
+    ListNode *psm = dmSm, *pbg = dmBg;
+    ListNode *cur = head;
+    while (cur) {
+        if (cur->val < x) {
+            psm->next = cur;
+            psm = psm->next;
+        } else {
+            pbg->next = cur;
+            pbg = pbg->next;
+        }
+        cur = cur->next;
+    }
+    pbg->next = nullptr;
+    psm->next = dmBg->next;
+    return dmSm->next; 
+}
+
+// LC :: 237
+
+void deleteNode(ListNode* node) {
+    ListNode *nn = node->next;
+    node->val = nn->val;
+    node->next = nn->next;
+    delete nn;
+}
+
+// LC :: 725
+
+vector<ListNode*> splitListToParts2(ListNode* head, int k) {
+    ListNode *cur = head;
+    int n = 0;
+    while (cur) {
+        n++;
+        cur = cur->next;
+    }
+    cur = head;
+    int rem  = n % k;
+    int div = n / k;
+
+    vector<int> counts(k, div);
+    vector<ListNode*> res(k,nullptr);
+    int i = 0;
+    while(rem-- != 0) counts[i++]++;
+    i = 0;
+    for (int c : counts) {
+        if (c == 0) break;
+        ListNode dummy;
+        dummy.next = cur;
+        while (--c && cur) cur = cur->next;
+        res[i++] = dummy.next;
+        if (cur){
+            ListNode* nn = cur;
+            cur = cur->next;
+            nn->next = nullptr;
+        }
+    }
+    return res;
+}
+
+vector<ListNode*> splitListToParts(ListNode* head, int k) {
+    ListNode *cur = head;
+    int n = 0;
+    while (cur) {
+        n++;
+        cur = cur->next;
+    }
+    cur = head;
+    int rem  = n % k;
+    int div = n / k;
+    vector<ListNode*> res;
+    int i = 0;
+    while(k) {
+        ListNode dummy;
+        dummy.next = cur;
+        int sz = div;
+        if (rem-- > 0)
+            sz++;
+        while (--sz && cur) cur = cur->next;
+        res.push_back(dummy.next);
+        if (cur){
+            ListNode* nn = cur;
+            cur = cur->next;
+            nn->next = nullptr;
+        }
+        k--;
+    }
+    return res;
+}
+
+// LC :: 2058
+vector<int> nodesBetweenCriticalPoints(ListNode* head) {
+    vector<int> res = {-1,-1};
+    if(!head) return res;
+    ListNode* prev = head;
+    ListNode* cur = head->next;
+    int i = 1;
+    #define CRT_MAX_VAL 200000
+    int low = CRT_MAX_VAL;
+    int high = 0;
+    int minDist = CRT_MAX_VAL;
+    int lastIdx = -1;
+    while(cur){
+        if(cur->next) {
+            if((prev->val < cur->val && cur->val > cur->next->val) ||
+                (prev->val > cur->val && cur->val < cur->next->val)) {
+                low = std::min(low, i);
+                high = std::max(high, i);
+                if(lastIdx != -1) {
+                    minDist = std::min(minDist, i -lastIdx);
+                }
+                lastIdx = i;
+            }
+        }
+        prev = prev->next;
+        cur = cur->next;
+        i++;
+    }
+    if (low == high || minDist == CRT_MAX_VAL) return res;
+
+    res[1] = high - low;
+    res[0] = minDist;
+
+    return res;
+}
+
 
 int main(){
     return 0;
