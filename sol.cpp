@@ -91,6 +91,13 @@ void rotate(vector<int>& nums, int k) {
     
 }
 
+// LC :: 45
+// Both are greedy solutions but the second one is more optimized
+// just one pass solution
+// The idea is to keep track of the max index we can reach from the current index
+// and only update the max index when we reach the current max index and update 
+// the jump count
+
 int jump(vector<int>& nums) {
     if (nums.size()<=1) return 0;
     int jmp = 0;
@@ -126,6 +133,70 @@ int jump2(vector<int>& nums) {
     }
     return jmpCnt;
 
+}
+
+// LC :: 13
+int romanToInt(string s) {
+    std::unordered_map<char, int> roman = {{'I',1}, {'V',5}, {'X',10},{'L',50}, {'C',100}, {'D',500}, {'M',1000}};
+    std::unordered_map<char, int> index = {{'I',1}, {'V',2}, {'X',3},{'L',4}, {'C',5}, {'D',6}, {'M',7}};
+    int sum = 0;
+    for (int i = 0; i < s.size(); i++){
+        sum += roman[s[i]];
+        if(i != 0 && index[s[i-1]] < index[s[i]]) {
+            sum -= roman[s[i-1]] * 2;
+        }
+    }
+    return sum;
+}
+
+// LC :: 11
+int maxArea(vector<int>& height) {
+    int l = 0;
+    int r = height.size() - 1;
+    int area = 0;
+    while (l<r) {
+        area = std::max(area, std::min(height[l],height[r]) * (r - l));
+        if (height[l] <= height[r])
+            l++;
+        else
+            r--;
+    }
+    return area;
+}
+
+// LC :: 134
+int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+    int sum = 0;
+    int pos = -1;
+    for(int i = 0; i < gas.size();i++){
+        sum+= gas[i] -cost[i];
+    }
+    if (sum < 0) return -1;
+    sum = 0;
+    for (int i = 0; i<gas.size(); i++) {
+        sum+= gas[i] -cost[i];
+        if (sum>=0) {
+            if (pos == -1)
+                pos = i;
+        } else {  // sum is negative, so discard everything up to this point
+            pos = -1;
+            sum = 0; // sum was negative so discard this from our candidate starting index 
+        }
+    }
+    return pos;
+}
+
+// LC :: 55
+bool canJump(vector<int>& nums) {
+    int maxCover = 0;
+    for (int i = 0; i <nums.size(); i++){
+        maxCover = std::max(maxCover, i + nums[i]);
+        if (maxCover >= nums.size() -1) 
+            return true;
+        if (i <nums.size()-1 && maxCover<=i)
+            return false;
+    }
+    return true;        
 }
 
 int hIndex(vector<int>& citations) {
@@ -1038,6 +1109,7 @@ bool canConstruct(string ransomNote, string magazine) {
     return true;
 }
 
+// LC :: 3
 int lengthOfLongestSubstring(string s) {
     unordered_map<char, int> fmap;
     int left = 0, right = 0;
@@ -1054,6 +1126,7 @@ int lengthOfLongestSubstring(string s) {
     return len;
     
 }
+
 // transpose matrix
 void transposeMat(vector<vector<int>>& mat){
     int n = mat.size();
@@ -1098,6 +1171,92 @@ bool isIsomorphic(string s, string t) {
     }
     return true;
     
+}
+// LC :: 125
+bool isPalindrome(string s) {
+    int l = 0; 
+    int r = s.size()-1;
+    auto isLetter = [](char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
+    };
+    while (l <= r) {
+        if (isLetter(s[l]) && isLetter(s[r])){
+            if (tolower(s[l++]) != tolower(s[r--])) return false;
+        } else {
+            if(!isLetter(s[l])) l++;
+            if(!isLetter(s[r])) r--;
+        }
+    }
+    return true;    
+}
+
+// LC :: 58
+int lengthOfLastWord(string s) {
+    int i = 0;
+    int len = 0;
+    while (i < s.size()) {
+        while (i < s.size() && s[i] == ' ')
+            i++;
+        if (i == s.size()) break; 
+        int j = 0;
+        while(i<s.size() && s[i]!= ' ') {
+            j++;
+            i++;
+        }
+        len = j;
+    }
+    return len;
+}
+// LC :: 36
+bool isValidSudoku(vector<vector<char>>& board) {
+    unordered_set<int> valids;
+    for(int i = 0; i < board.size(); i++) {
+        for (int j = 0; j < board[0].size(); j++) {
+            if (board[i][j]=='.') continue;
+            int rval = (i+1) * 10 + board[i][j] -'0';
+            int cval = (j+1) * 100 + board[i][j] - '0';
+            int bval = ((i/3) * 3  + j/3 +1) * 1000 + board[i][j] - '0';
+            if (valids.count(rval) || valids.count(cval) || valids.count(bval))
+                return false;
+            valids.insert(rval);
+            valids.insert(cval);
+            valids.insert(bval);
+        }
+    }
+    return true;
+}
+
+// LC :: 14
+string longestCommonPrefix(vector<string>& strs) {
+    std::sort(strs.begin(),strs.end());
+    string st = strs[0];
+    string end = strs[strs.size()-1];
+    string res = "";
+    for (int i = 0; i < std::min(st.size(),end.size());i++){
+        if(st[i] != end[i])
+            break;
+        res += st[i]; 
+    }
+    return res;
+    
+}
+
+// LC :: 209
+int minSubArrayLen(int target, vector<int>& nums) {
+    
+    int left = 0, right = 0;
+    int sum = 0;
+    int minLen = INT_MAX;
+    while (right < nums.size()) {
+        sum += nums[right];
+        while (sum >= target) {
+            sum -= nums[left];
+            minLen = std::min(minLen, right-left + 1);
+            left++;
+        }
+        right++;
+    }
+    return minLen == INT_MAX?0:minLen;
 }
 
 // LC :: 290
@@ -1455,6 +1614,23 @@ int calculate3(string s) {
     }
     res+= val * sign;
     return res;
+}
+
+// LC :: 242
+bool isAnagram(string s, string t) {
+    if (s.size() != t.size()) return false; 
+    unordered_map<char, int> fmap;
+    for(auto c : s) {
+        fmap[c]++;
+    }
+    for (auto c : t){
+        if (fmap.find(c) == fmap.end()) return false;
+        fmap[c]--;
+        if(fmap[c] < 0) return false;
+    }
+
+    return true;
+    
 }
 
 // LC :: 179
