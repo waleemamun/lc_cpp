@@ -311,7 +311,9 @@ Node* copyRandomList(Node* head) {
 
     
 }
-
+// LC :: 19
+// Three different approach to solve this problem depending on where the cur and prev are initialized
+// this is a of by one porblem
 ListNode* removeNthFromEnd(ListNode* head, int n) {
     ListNode *cur = head;
     ListNode* dummy = new ListNode(-1);
@@ -328,6 +330,42 @@ ListNode* removeNthFromEnd(ListNode* head, int n) {
     ListNode *nx = prev->next;
     prev->next = nx->next;
     
+    return dummy->next;
+}
+// starting cur and prev from dummy
+ListNode* removeNthFromEnd2(ListNode* head, int n) {
+    if (!head) return head;
+    ListNode *dummy = new ListNode(-1);
+    dummy->next = head;
+    ListNode *cur = dummy;
+    ListNode *prev = dummy;
+    while(cur && cur->next) {
+        if(n == 0){
+            prev = prev->next;
+        } else {
+            n--;
+        }
+        cur = cur->next;
+    }
+    prev->next = prev->next->next;
+    return dummy->next;
+}
+// starting cur from head and prev from dummy
+ListNode* removeNthFromEnd3(ListNode* head, int n) {
+    if (!head) return head;
+    ListNode *dummy = new ListNode(-1);
+    dummy->next = head;
+    ListNode *cur = head;
+    ListNode *prev = dummy;
+    while(cur) {
+        if(n == 0){
+            prev = prev->next;
+        } else {
+            n--;
+        }
+        cur = cur->next;
+    }
+    prev->next = prev->next->next;
     return dummy->next;
 }
 

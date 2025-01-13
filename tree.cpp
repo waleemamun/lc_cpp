@@ -38,6 +38,25 @@ void print(TreeNode* root)
     
 }
 
+// LC :: 104
+
+int maxDepth(TreeNode* root) {
+    if (root==nullptr) return 0;
+    return 1 + std::max(maxDepth(root->left), maxDepth(root->right)); 
+    
+}
+
+// LC :: 226
+
+TreeNode* invertTree(TreeNode* root) {
+    if(!root)
+        return nullptr;
+    TreeNode* l = invertTree(root->left);
+    TreeNode* r = invertTree(root->right);
+    root->left  = r;
+    root->right = l;
+    return root;
+}
 
 TreeNode* createBSTRec(int arr[], int low, int high) {
     if (low>high) 
@@ -67,13 +86,59 @@ void inorder(TreeNode* root)
 
 }
 
+// LC:: 98
+// This is the correct solution for the problem
+// To check a tree is BST or not we need to check the inorder traversal of the tree is sorted or not
+bool isValidBST(TreeNode* root) {
+    TreeNode* node = root;
+    stack<TreeNode*> stk;
+    TreeNode* lastPopNode = nullptr;
+
+    while(!stk.empty() || node) {
+        if(node) {
+            stk.push(node);
+            node = node->left;
+        } else {
+            node = stk.top();
+            stk.pop();
+            if (lastPopNode && lastPopNode->val >= node->val) {
+                return false;
+            }
+            lastPopNode = node;
+            node = node->right;
+        }
+    }
+    return true;
+}
+
+// LC :: 230
+int kthSmallest(TreeNode* root, int k) {
+    TreeNode* node = root;
+    stack<TreeNode*> stk;
+
+    while(!stk.empty() || node) {
+        if(node) {
+            stk.push(node);
+            node = node->left;
+        } else {
+            node = stk.top();
+            stk.pop();
+            k--;
+            if (k == 0)
+                return node->val;
+            node = node->right;
+        }
+    }
+    return INT_MAX;
+}
+
 vector<int> inorderTraversal(TreeNode* root) {
     vector<int> rlist;
     stack<TreeNode*> stk;
     TreeNode* node = root;
     
-    while(!stk.empty() || node != nullptr){
-        if (node != nullptr){
+    while(!stk.empty() || node){
+        if (node){
             stk.push(node);
             node = node->left;
         } else {
@@ -81,7 +146,6 @@ vector<int> inorderTraversal(TreeNode* root) {
             rlist.push_back(node->val);
             stk.pop();
             node = node->right;
-            
         }
     }
     return rlist;    
@@ -559,7 +623,22 @@ TreeNode* inorderSuccessor(TreeNode* root, TreeNode* p) {
     return leftAncestor;    
 }
 
+// LC :: 101
+bool isSmRec(TreeNode* p, TreeNode* q) {
+    if (!p && !q)
+        return true;
+    if (p == nullptr || q == nullptr)
+        return false;
+    return (p->val == q->val) && 
+        isSmRec(p->left, q->right) && 
+        isSmRec(p->right, q->left);
+}
+bool isSymmetric(TreeNode* root) {
+    return isSmRec(root, root); 
+}
 
+// LC:: 100
+// Recursive approach vs stack approach
 bool isSameTree2(TreeNode* p, TreeNode* q) {
     if (!p && !q)
         return true;

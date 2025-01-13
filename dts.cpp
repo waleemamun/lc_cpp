@@ -43,11 +43,13 @@ public:
 
 class DblLinkList {
     public:
+        int key;
         int val;
         std::shared_ptr<DblLinkList> next;
         std::weak_ptr<DblLinkList> prev;
         DblLinkList() : val(0){}
         DblLinkList(int v) : val(v){}
+        DblLinkList(int k, int v) : key(k), val(v){}
 };
 
 class FirstUnique {
@@ -97,6 +99,74 @@ public:
                 // remember to make the nmap point to null
                 nmap[value] = nullptr;
             }
+        }
+        
+    }
+};
+
+// LC :: 146
+class LRUCache {
+public:
+    std::shared_ptr<DblLinkList> head;
+    std::shared_ptr<DblLinkList> tail;
+    int capacity;
+    int size = 0;
+    unordered_map<int, shared_ptr<DblLinkList>> kmap;
+    LRUCache(int capacity) {
+        head = make_shared<DblLinkList>();
+        tail = make_shared<DblLinkList>();
+        head->next = tail;
+        tail->prev = head;
+        this->capacity = capacity;
+        size = 0;
+    }
+    void addToHead(shared_ptr<DblLinkList> node){
+        node->next = head->next;
+        node->prev = head;
+        head->next->prev = node;
+        head->next = node;
+    }
+    void moveToHead(shared_ptr<DblLinkList> node) {
+        if (node->prev.lock() == head && node->next == tail) return;
+        node->prev.lock()->next = node->next;
+        //printf("%d \n", node->val);
+        node->next->prev = node->prev;
+        node->next = nullptr;
+        addToHead(node);
+        
+    }
+    void deleteFromTail(){
+        if(head->next == tail) return;
+        auto p = tail->prev.lock();
+        auto k = p->key;
+        tail->prev = p->prev;
+        p->prev.lock()->next = tail;
+        p->next = nullptr;
+        kmap.erase(k);
+    }
+    
+    int get(int key) {
+         if (kmap.find(key) != kmap.end()) {
+            auto v = kmap[key];
+            moveToHead(v);
+            return v->val;
+         }
+         return -1;
+        
+    }
+    
+    void put(int key, int value) {
+        if (kmap.find(key) == kmap.end()) {
+            kmap[key] = make_shared<DblLinkList>(key, value);
+            addToHead(kmap[key]);
+            size++;
+            if (size > capacity) {
+                deleteFromTail();
+            }
+        } else {
+            std::shared_ptr<DblLinkList> v = kmap[key];
+            v->val = value;
+            moveToHead(v);
         }
         
     }

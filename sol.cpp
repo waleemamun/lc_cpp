@@ -1289,6 +1289,8 @@ bool wordPattern(string pattern, string s) {
     
 }
 
+// LC:: 49
+// check the V2 version for more concise code
 vector<vector<string>> groupAnagrams(vector<string>& strs) {
 
     vector<vector<string>> res;
@@ -1305,6 +1307,23 @@ vector<vector<string>> groupAnagrams(vector<string>& strs) {
                 sb+= c + to_string(freq[i]);
             } 
         }
+        grpMap[sb].push_back(st);
+    }
+    
+    for (auto [k,v] : grpMap){
+        res.push_back(v);
+    }
+    
+    return res;
+}
+
+vector<vector<string>> groupAnagramsV2(vector<string>& strs) {
+
+    vector<vector<string>> res;
+    unordered_map<string, vector<string>> grpMap;
+    for (string st : strs) {
+        string sb = st;
+        sort(sb.begin(),sb.end());
         grpMap[sb].push_back(st);
     }
     
@@ -1428,6 +1447,8 @@ vector<string> summaryRanges2(vector<int>& nums) {
 // be counted as one concurency, we keep counting how many concurrency possible throughout the time.
 // This works here because consider one interval that is part of multple concurencey if count it in one of 
 // it that is fine cause its needs to be counted once
+// We are taking a greedy approach here, we are always trying to cover as many intervals as possible with the
+// minimum end time possible
 int findMinArrowShots(vector<vector<int>>& points) {
     auto cmp = [](vector<int> &a, vector<int> &b){ return a[1]<b[1];};
     std::sort(points.begin(), points.end(), cmp);
