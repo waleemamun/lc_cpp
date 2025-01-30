@@ -188,6 +188,7 @@ bool dfsCF(int u, unordered_map<int, vector<int>> &graph, vector<int> &color){
     return true;
 }
 
+// DFS approach
 bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
     unordered_map<int, vector<int>> graph;
     
@@ -203,6 +204,36 @@ bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
             return false;
     }
     return true;
+}
+
+// BFS approach
+bool canFinishBFS(int numCourses, vector<vector<int>>& prerequisites) {
+    unordered_map<int, vector<int>> graph;
+    vector<int> indegree(numCourses, 0);
+    for (auto p : prerequisites) {
+        graph[p[1]].push_back(p[0]);
+        indegree[p[0]]++;
+    }
+    queue<int> que;
+    for (int i = 0; i < numCourses; i++) {
+        if (!indegree[i])
+            que.push(i);
+
+    }
+    int visitCount = 0;
+    while(!que.empty()){
+        int u = que.front();
+        que.pop();
+        visitCount++;
+        // res.push_back(u); // this is the topological sort
+        for(auto v : graph[u]) {
+            indegree[v]--;
+            if (!indegree[v])
+                que.push(v);
+        }
+    }
+    return visitCount == numCourses;
+
 }
 
 // LC :: 210
@@ -391,6 +422,50 @@ vector<string> findItinerary(vector<vector<string>>& tickets) {
     dfsEuler("JFK", graph, res);
     vector<string> path(res.begin(), res.end());
     return path;
+}
+
+// LC :: 127
+
+vector<string> genWords(string w) {
+    string s = w;
+    vector<string> res;
+    for (int i = 0; i<s.size(); i++) {
+        char ch = s[i];
+        s[i] = '*';
+        res.push_back(s);
+        s[i] = ch;
+    }
+    return res;
+}
+
+int ladderLength(string beginWord, string endWord, vector<string>& wordList) {
+    unordered_map<string, vector<string>> graph;
+    for (auto w : wordList) {
+        auto node = genWords(w);
+        for (auto n: node){
+            graph[n].push_back(w);
+        }
+    }
+    unordered_map<string, int> dist;
+    queue<string> que;
+    que.push(beginWord);
+    dist[beginWord] = 1;
+    while (!que.empty()) {
+        string u = que.front();
+        que.pop();
+        auto adj = genWords(u);
+        for (auto v : adj){
+            for (string vs :  graph[v]) {
+                if (dist.find(vs) == dist.end()) {
+                    que.push(vs);
+                    dist[vs] = dist[u] + 1;
+                    if (vs == endWord) 
+                        return dist[vs];
+                }
+            }
+        }
+    }
+    return 0;
 }
 
 // LC :: 909 

@@ -131,6 +131,44 @@ int kthSmallest(TreeNode* root, int k) {
     }
     return INT_MAX;
 }
+// LC :: 108
+
+TreeNode* arr2BSTRec(vector<int>& nums, int low, int high){
+    if (low > high)
+        return nullptr;
+    int mid = low + (high-low)/2;
+    TreeNode* node = new TreeNode(nums[mid]);
+    node->left = arr2BSTRec(nums, low, mid - 1);
+    node->right = arr2BSTRec(nums, mid + 1, high);
+    return node; 
+}
+TreeNode* sortedArrayToBST(vector<int>& nums) {
+    return arr2BSTRec(nums, 0, nums.size() - 1);
+}
+
+// LC::530
+int getMinimumDifference(TreeNode* root) {
+    TreeNode* lastPopNode = nullptr;
+    TreeNode* node = root;
+    stack<TreeNode*> stk;
+    int diff = INT_MAX;
+    while(!stk.empty() || node) {
+        if(node) {
+            stk.push(node);
+            node = node->left;
+        } else {
+            node = stk.top();
+            stk.pop();
+            if (lastPopNode) {
+                diff = std::min(diff, std::abs(lastPopNode->val - node->val));
+            }
+            lastPopNode = node;
+            node = node->right;
+        }
+    }
+    return diff;
+    
+}
 
 vector<int> inorderTraversal(TreeNode* root) {
     vector<int> rlist;

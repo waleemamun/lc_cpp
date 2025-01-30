@@ -81,6 +81,46 @@ int maxSumSubmatrix(vector<vector<int>>& matrix, int k) {
     }
     return mSum;    
 }
+
+// LC :: 62
+int uniquePaths(int m, int n) {
+    vector<int> dp(n,0);
+    dp[0] = 1;
+    for (int i = 0; i < m; i++) {
+        for (int j = 1; j < n; j++) {
+            dp[j] = dp[j] + dp[j-1];
+        }
+    }
+    return dp[n-1];
+}
+
+// LC :: 63 
+
+int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+    unsigned int n = obstacleGrid.size();
+    unsigned int m = obstacleGrid[0].size();
+    vector<int> dp(m, 0);
+
+    if(n == 1 && m == 1) return !obstacleGrid[0][0];
+    for (unsigned int i = 0; i < n; i++) {
+        for (unsigned int j = 0; j < m; j++) {
+            if (i == 0 && j == 0)
+                dp[j] = 1;
+            else if (i == 0) {
+                dp[j] = !obstacleGrid[i][j] & dp[j-1] & !obstacleGrid[i][j-1];
+            }
+            else if (j == 0) {
+                dp[j] = !obstacleGrid[i][j] & dp[j] & !obstacleGrid[i-1][j];
+            }
+            else if (obstacleGrid[i][j] == 1)
+                dp[j] = 0;
+            else
+                dp[j] = dp[j] + dp[j-1];
+        }
+    }
+    return dp[m-1];
+    
+}
 // LC :: 1143
 int longestCommonSubsequence(string text1, string text2) {
     vector<vector<int>> dp(text1.size()+1, vector<int> (text2.size()+1, 0));
@@ -172,6 +212,55 @@ int change(int amount, vector<int>& coins) {
     
 }
 
+// LC :: 198
+
+int rob(vector<int>& nums) {
+    if (nums.size() == 0) return 0;
+    vector<int> dp(nums.size() +1, 0);
+    dp[0] = 0;
+    dp[1] = nums[0];
+    for (unsigned int i = 2; i <= nums.size(); i++) {
+        dp[i] = std::max(dp[i-2] + nums[i-1], dp[i-1]);
+    }
+    return dp[nums.size()];
+}
+
+// optimized version O(1) space
+int rob2(vector<int>& nums) {
+    if (nums.size() == 0) return 0;
+    int last = 0;
+    int lastlast = 0;
+    for (int n : nums) {
+        int tmp = last;
+        last = std::max(last, lastlast + n);
+        lastlast = tmp; 
+    }
+    return last;
+}
+
+// LC :: 213
+int rob(vector<int>& nums) {
+    if (nums.size() == 0) return 0;
+    int last = 0;
+    int lastlast = 0;
+    // start at the first and you cannot take the last element
+    for (int i = 0; i<nums.size()-1;  i++) {
+        int tmp = last;
+        last = std::max(last, lastlast + nums[i]);
+        lastlast = tmp;; 
+    }
+    int res = last;
+    lastlast = 0;
+    last = 0;
+    // start at the second and you can take the last element
+    for (int i = 1; i<nums.size();  i++) {
+        int tmp = last;
+        last = std::max(last, lastlast + nums[i]);
+        lastlast = tmp;
+    }
+    return std::max(last, res);
+}
+
 // LC :: 64
 
 int minPathSum(vector<vector<int>>& grid) {
@@ -243,7 +332,7 @@ int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
     
 }
 
-// optimized version
+// optimized version this did not pass all case look at the above solution
 
 int uniquePathsWithObstacles2(vector<vector<int>>& obstacleGrid) {
     unsigned int n = obstacleGrid.size();
@@ -312,7 +401,7 @@ int rotatedDigits(int n) {
         } else {
             if (digits[i/10] == 1 && digits[i%10] == 1){
                 digits[i] = 1;
-            }else if (digits[i/10] == 2 && digits[i%10] == 2) {
+            }else if (digits[i/10] >= 1 && digits[i%10] >= 1) {
                 digits[i] = 2;
                 count++;
             }

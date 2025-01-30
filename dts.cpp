@@ -271,6 +271,53 @@ public:
     }
 };
 
+class TrieNode {
+    public:
+        char val;
+        bool hasWord;
+        unordered_map<char, TrieNode*> child;
+        TrieNode(char ch) : val(ch), hasWord(false) {}
+};
+
+class WordDictionary {
+public:
+    TrieNode* root;
+    WordDictionary() {
+        root = new TrieNode('#');
+        
+    }
+    
+    void addWord(string word) {
+        TrieNode* node = root;
+        for(char w: word) {
+            if(!node->child.count(w)) {
+                TrieNode* nd = new TrieNode(w);
+                node->child[w] = nd;
+            }
+            node = node->child[w];
+        }
+        node->hasWord = true;
+    }
+    bool searchRec(TrieNode* node, string word, int index) {
+        if (node && index == word.size()) 
+            return node->hasWord;
+        char ch = word[index];
+        if (ch != '.') {
+            if (!node->child.count(ch)) return false;
+            return searchRec(node->child[ch], word, index + 1);
+        }
+        for (auto &nd : node->child) {
+            if (searchRec(nd.second, word, index + 1))
+                return true;
+        }
+        return false;
+    }
+    bool search(string word) {
+
+        return searchRec(root, word, 0);
+    }
+};
+
 int main()
 {
     MedianFinder mc;

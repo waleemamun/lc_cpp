@@ -3,6 +3,19 @@
 #include <sstream>
 using namespace std;
 
+//             Product
+//                 ^
+//                 |
+//     ---------------------------
+//     |                         |
+// ConcreteProductA        ConcreteProductB
+
+//            Creator
+//               ^
+//               |
+//       ConcreteCreatorA      ConcreteCreatorB
+
+
 class product {
     public:
         virtual void produce() = 0;
@@ -49,12 +62,13 @@ class productC : public product {
         }
 };
 
+// Factory Method Interface
 class product_factory {
     public:
         virtual product* createProduct(string type) = 0;
         virtual ~product_factory() = default;
 };
-
+// Concrete Factory
 class product_factory_A : public product_factory {
     public:
         product* createProduct(string type) {

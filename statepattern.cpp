@@ -1,6 +1,50 @@
 #include <iostream>
 #include <memory>
 
+
+// The State design pattern is used to allow an object to change its behavior when its internal state changes. 
+// This pattern is particularly useful when an object has multiple states and must change its behavior based on the state it is in.
+// Let’s create a simple example to demonstrate the State pattern with state transitions.
+
+// Scenario: Vending Machine
+// Imagine a vending machine with three states:
+
+// NoCoinInsertedState: No coin is inserted, and the machine is idle.
+// CoinInsertedState: A coin has been inserted, and the machine is ready to dispense an item.
+// ItemDispensedState: An item has been dispensed, and the machine is ready to go back to idle.
+// The vending machine transitions between these states based on specific actions: inserting a coin, selecting an item, and dispensing an item.
+
+//            +--------------------+
+//            |     State          |  (Abstract Base Class)
+//            +--------------------+
+//            | +insertCoin()      |
+//            | +selectItem()      |
+//            | +dispenseItem()    |
+//            +--------------------+
+//                     ▲
+//       ┌────────────┼─────────────┐
+//       │            │             │
+// +----------------+ +------------------+ +-------------------+
+// | NoCoinInserted | | CoinInsertedState | | ItemDispensedState |
+// +----------------+ +------------------+ +-------------------+
+// | +insertCoin()  | | +insertCoin()     | | +insertCoin()     |
+// | +selectItem()  | | +selectItem()     | | +selectItem()     |
+// | +dispenseItem()| | +dispenseItem()   | | +dispenseItem()   |
+// +----------------+ +------------------+ +-------------------+
+//                     ▲
+//                     │
+//        +------------------------+
+//        |     VendingMachine     |  (Context)
+//        +------------------------+
+//        | - state: shared_ptr<State> |
+//        +------------------------+
+//        | +setState(State*)      |
+//        | +insertCoin()          |
+//        | +selectItem()          |
+//        | +dispenseItem()        |
+//        +------------------------+
+
+
 // Forward declare the VendingMachine class
 class VendingMachine;
 

@@ -5,6 +5,30 @@
 #include <sstream>
 using namespace std;
 
+
+        //   +------------------+            +-------------------+
+        //   |     Subject       |<>--------->|     Observer       |
+        //   +------------------+            +-------------------+
+        //   | +registerObserver()|           | +update()          |
+        //   | +removeObserver()  |           +-------------------+
+        //   | +notifyObservers() |                       
+        //   +------------------+            
+        //            |
+        //   +----------------------+
+        //   |    ConcreteSubject    |
+        //   +----------------------+
+        //   | - state: State        |
+        //   | +getState(): State    |
+        //   | +setState(State)      |
+        //   +----------------------+
+        //            ^
+        //            |
+        //   +----------------------+     +-----------------------+
+        //   |    ConcreteObserver   |     |    ConcreteObserver    |
+        //   +----------------------+     +-----------------------+
+        //   | +update()             |     | +update()             |
+        //   +----------------------+     +-----------------------+
+
 class observer_interface {
     public:
         virtual void update(int x) = 0;

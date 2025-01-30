@@ -3,6 +3,15 @@
 #include <sstream>
 using namespace std;
 
+
+// Component
+//   ^                              
+//   |                              
+// ConcreteComponent   Decorator
+//                       ^   
+//                       |
+//                ConcreteDecorator
+
 class component{
     public:
         virtual string cost() = 0;

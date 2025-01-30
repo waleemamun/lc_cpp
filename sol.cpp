@@ -588,6 +588,8 @@ int missingElement(vector<int>& nums, int k) {
         } else {
             high = mid;
         } 
+        // found the starting number, its nums[low] so nums[low] + k is our solution
+        // think how in the next iteration low == mid which indicates low is our solution starting number
         if (high - low == 1) {
             kth = nums[low] + k;
             break;
@@ -1936,6 +1938,7 @@ string addBinary(string a, string b) {
 // we start with w capital and push as many element possible to the maxheap, then pick the 
 // most profitalble one and update the capital now we can cover more items from the list.
 // after inserting them we pick the best profitable option from the maxHeap
+// O(nlogn + klogn) = O(nlogn)
 int findMaximizedCapital(int k, int w, vector<int>& profits, vector<int>& capital) {
     vector<pair<int,int>> cap_prof;
     for (int i = 0; i < profits.size(); i++) {
@@ -1945,6 +1948,7 @@ int findMaximizedCapital(int k, int w, vector<int>& profits, vector<int>& capita
     std::sort(cap_prof.begin(), cap_prof.end(), cmp);
     int i = 0;
     priority_queue<int,vector<int>> maxHeap;
+    // this loop is O(n+klogn)
     while (k > 0) {
         while(i<cap_prof.size() && w >= cap_prof[i].first) {
             maxHeap.push(cap_prof[i++].second);
@@ -1997,6 +2001,48 @@ int removeElement(vector<int>& nums, int val) {
         }
     }
     return j;
+}
+
+// LC :: 480 Sliding window median
+// The idea is to use two heaps to keep track of the median, we use a maxHeap for the left side
+// and minHeap for the right side, we keep the size of the maxHeap always greater than the minHeap
+// if the size of the maxHeap is greater than the minHeap we pop the top of the maxHeap and push it to the minHeap
+// if the size of the minHeap is greater than the maxHeap we pop the top of the minHeap and push it to the maxHeap
+// we also need to keep track of the deleted element from the window
+// Priority queue is not a good choice here as we need to delete the element from the heap
+// we need to use multiset here
+vector<double> medianSlidingWindow(vector<int>& nums, int k) {
+    multiset<int, std::greater<int>> maxHeap;
+    multiset<int> minHeap;
+    vector<double> res;
+    int start = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        if (minHeap.size() <= maxHeap.size()) {
+            maxHeap.insert(nums[i]);
+            minHeap.insert(*maxHeap.begin());
+            maxHeap.erase(maxHeap.begin());
+        } else {
+            minHeap.insert(nums[i]);
+            maxHeap.insert(*minHeap.begin());
+            minHeap.erase(minHeap.begin());
+        }
+        if (i >= k -1) {
+            double median = (k & 1) ? 
+                *minHeap.begin() : 
+                ((double)(*minHeap.begin()) + (double)(*maxHeap.begin())) * 0.5;
+            res.push_back(median);
+
+            if (minHeap.count(nums[start])) {
+                auto it = minHeap.find(nums[start]);
+                minHeap.erase(it);
+            } else {
+                auto it = maxHeap.find(nums[start]);
+                maxHeap.erase(it);
+            }
+            start++;
+        }
+    }
+    return res;
 }
 
 

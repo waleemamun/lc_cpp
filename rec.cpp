@@ -168,6 +168,66 @@ vector<string> generateParenthesis(int n) {
     return rlist;
 }
 
+// LC :: 33
+
+int search(vector<int>& nums, int target) {
+    int low = 0;
+    int high = nums.size() -1;
+    while (low <= high){
+        int mid = low + (high-low)/2;
+        if (nums[mid] == target) 
+            return mid;
+        else if (nums[low] <= nums[mid]) { // left side sorted
+            if (nums[low] <= target && target < nums[mid])
+                high = mid - 1;
+            else
+                low = mid + 1;
+
+        } else { // right side sorted
+            if ( nums[mid] < target && target <= nums[high])
+                low = mid + 1;
+            else
+                high = mid - 1;
+        }
+    }
+    return -1;
+}
+
+// LC :: 70
+
+bool existRec(vector<vector<char>>& board, string word, int index, int r, int c) {
+    // this should be first condition to check as in corner case 
+    // we may endup matching the word in the corner/edge of the board
+    if (index == word.size()) {
+        return true;
+    }
+    if (r < 0 || r >= board.size() || c < 0 || c >= board[0].size() || board[r][c] == '*') {
+        return false;
+    }
+    if (board[r][c] != word[index]) {
+        return false;
+    }
+
+    char ch = board[r][c];
+    board[r][c] = '*';
+    bool res = existRec(board, word, index+1, r-1, c) ||
+                existRec(board, word, index+1, r+1, c) ||
+                existRec(board, word, index+1, r, c-1) ||
+                existRec(board, word, index+1, r, c+1);
+    board[r][c] = ch;
+    return res;
+
+}
+bool exist(vector<vector<char>>& board, string word) {
+    for (int i = 0; i < board.size(); i++) {
+        for (int j = 0; j < board[0].size(); j++){
+            if (existRec(board, word, 0, i, j))
+                return true;
+        }
+    }
+    return false;
+}
+
 int main(){
     totalNQueens(8);
     return 0;
