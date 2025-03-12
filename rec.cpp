@@ -168,9 +168,47 @@ vector<string> generateParenthesis(int n) {
     return rlist;
 }
 
+void genParenRec2(vector<string> &rList, int l, int r, string &res, int index, int n) {
+    if (l < r || l > n || r > n) return;
+    if (l == n && r == n)
+        rList.push_back(res);
+    res[index] = '(';
+    genParenRec(rList, l + 1, r, res, index + 1, n);
+    res[index] = ')';
+    genParenRec(rList, l, r + 1, res, index + 1, n);
+
+
+}
+vector<string> generateParenthesis2(int n) {
+    string res(2*n,'\0');
+    vector<string> rlist;
+    genParenRec2(rlist, 0, 0, res, 0, n);
+    return rlist;
+}
+
+// LC :: 90
+void subsetDupRec(vector<int>& nums, int index, vector<int> &tlist, vector<vector<int>>& rlist) {
+    rlist.push_back(tlist);
+    for (int i = index; i < nums.size(); i++) {
+        if (i!=index && nums[i-1] == nums[i])
+            continue;
+        tlist.push_back(nums[i]);
+        subsetDupRec(nums, i + 1, tlist, rlist);
+        tlist.pop_back();
+    }
+
+}
+
+vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+    vector<vector<int>> rlist;
+    vector<int> tlist;
+    std::sort(nums.begin(), nums.end());
+    subsetDupRec(nums, 0, tlist, rlist);
+    return rlist;
+}
 // LC :: 33
 
-int search(vector<int>& nums, int target) {
+int search2(vector<int>& nums, int target) {
     int low = 0;
     int high = nums.size() -1;
     while (low <= high){
@@ -191,6 +229,34 @@ int search(vector<int>& nums, int target) {
         }
     }
     return -1;
+}
+
+int search(vector<int>& nums, int target) {
+    int l = 0;
+    int h = nums.size() - 1;
+    while (l < h) {
+        int mid = l + (h-l)/2;
+        if (nums[mid] > nums[h])
+            l = mid + 1;
+        else
+            h = mid; 
+    }
+    int splitIndex = l;
+    l = 0;
+    h = nums.size()-1;
+    int realMid = - 1;
+    while (l <= h) {
+        int mid = l + (h-l)/2;
+        int realMid = (splitIndex + mid) % nums.size();
+        if(nums[realMid] == target)
+            return realMid;
+        else if(nums[realMid] < target) {
+            l = mid + 1;
+        } else
+            h = mid - 1;
+    }
+    return realMid;
+
 }
 
 // LC :: 70

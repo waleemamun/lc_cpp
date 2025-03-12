@@ -633,6 +633,8 @@ int maximumUnits(vector<vector<int>>& boxTypes, int truckSize) {
     return units;
 }
 
+// LC :: 2182 
+
 string repeatLimitedString(string s, int repeatLimit) {
     int freq[26] = {0};
     priority_queue<char> pq;
@@ -667,6 +669,64 @@ string repeatLimitedString(string s, int repeatLimit) {
 
     }
     return res;
+    
+}
+
+// LC :: 358
+string rearrangeString(string s, int k) {
+    unordered_map<char, int> fmap;
+    auto cmp = [&fmap] (char a, char b){ return fmap[a] < fmap[b];};
+    priority_queue<char, vector<char>, decltype(cmp)> pq(cmp);
+    for (auto c : s) {
+        fmap[c]++;
+    }
+    for (auto [k,v] : fmap) {
+        pq.push(k);
+    }
+    queue <char> tempQ;
+    string res = "";
+    int validException = 0;
+    while(!pq.empty()) {
+        int cnt = k;
+        while(!pq.empty() && cnt) {
+            char ch = pq.top();
+            pq.pop();
+            fmap[ch]--;
+            if (fmap[ch] != 0)
+                tempQ.push(ch);
+            res += ch;
+            cnt--;
+        }
+        if (cnt != 0) validException++;
+        while (!tempQ.empty()) {
+            pq.push(tempQ.front());
+            tempQ.pop();
+        } 
+
+    }
+    if (validException >1) return "";
+    return res;
+}
+
+// LC :: 31
+// This is the next permutation algorithm
+// The idea is to find the first decreasing element from the end of the array
+// and then find the first element which is greater than the decreasing element
+// and swap them, then reverse the array from the next element of the decreasing element
+// to the end of the array
+void nextPermutation(vector<int>& nums) {
+    int i = nums.size() - 2;
+    while (i >= 0 && nums[i] >= nums[i+1]) {
+        i--;
+    }
+    if (i >= 0) {
+        int j = nums.size() - 1;
+        while (j > 0 && nums[j] <= nums[i]) 
+            j--;
+        std::swap(nums[i], nums[j]);
+    }
+
+    std::reverse(nums.begin() + i + 1, nums.end());
     
 }
 
@@ -2045,6 +2105,16 @@ vector<double> medianSlidingWindow(vector<int>& nums, int k) {
     return res;
 }
 
+// LC :: 1910
+// Basic approcah remove the occurances and keep processing
+string removeOccurrences(string s, string part) {
+    size_t start = s.find(part);
+    while (start != string::npos) {
+        s = s.substr(0,start) + s.substr(start+part.size());
+        start = s.find(part); 
+    }
+    return s;
+}
 
 
 int main(){

@@ -5,8 +5,8 @@ using namespace std;
 
 
 // Component
-//   ^                              
-//   |                              
+//   ^                 ^             
+//   |                 |             
 // ConcreteComponent   Decorator
 //                       ^   
 //                       |

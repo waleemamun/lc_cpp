@@ -61,7 +61,7 @@ ListNode* reverseKGroup(ListNode* head, int k) {
         if (count == k-1){ //last node
             bStart->next = revFromTo(bStart->next, cur->next, prev, cur);
         } else {
-            if (count == 0) // fast node
+            if (count == 0) // first node
                 bStart = prev;
             prev = prev->next;
             cur = cur->next;

@@ -82,7 +82,7 @@ class product_factory_A : public product_factory {
         }
 
 };
-
+// Concrete Factory
 class product_factory_B : public product_factory {
     public:
         product* createProduct(string type) {
