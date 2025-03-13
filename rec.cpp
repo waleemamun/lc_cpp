@@ -206,6 +206,67 @@ vector<vector<int>> subsetsWithDup(vector<int>& nums) {
     subsetDupRec(nums, 0, tlist, rlist);
     return rlist;
 }
+
+// LC :: 131
+bool isPal(string s) {
+    int l = 0, r = s.size()-1;
+    while (l <= r && s[l] == s[r]){
+        l++;
+        r--;
+    }
+    return l > r; 
+}
+void partitionRec(string s, int index, vector<string> &tlist, vector<vector<string>> &rlist) {
+    if (index == s.size()) {
+        rlist.push_back(tlist);
+        return;
+    }
+    for (int i = 1; i + index < s.size(); i++) {
+        string sub = s.substr(index, i);
+        if (isPal(sub)) {
+            tlist.push_back(sub);
+            partitionRec(s, index + i, tlist, rlist);
+            tlist.pop_back();
+        }
+    } 
+}
+vector<vector<string>> partition(string s) {
+    vector<string> tlist;
+    vector<vector<string>> rlist;
+    partitionRec(s, 0, tlist, rlist);
+    return rlist;
+}
+
+// LC :: 240 
+// non recusive 
+bool searchMatrixV2(vector<vector<int>>& matrix, int target) {
+    int r = 0, c = matrix[0].size() - 1;
+    while (c >= 0 && r < matrix.size()) {
+        if (matrix[r][c] == target)
+            return true;
+        else if (matrix[r][c] > target)
+            c--;
+        else
+            r++; 
+    }
+    return false;
+}
+bool searchMatRec(int r, int c, vector<vector<int>>& matrix, int target) {
+    if (r < 0 || c < 0 || r >= matrix.size() || c>=matrix[0].size())
+        return false;
+    if (matrix[r][c] == target) 
+        return true;
+    else if (target < matrix[r][c])
+        return searchMatRec(r, c - 1, matrix, target);
+    else
+        return searchMatRec(r + 1, c, matrix, target);
+
+
+}
+bool searchMatrix(vector<vector<int>>& matrix, int target) {
+    return searchMatRec(0,matrix[0].size() -1, matrix, target);
+}
+
 // LC :: 33
 
 int search2(vector<int>& nums, int target) {
