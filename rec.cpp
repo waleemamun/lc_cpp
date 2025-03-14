@@ -207,6 +207,167 @@ vector<vector<int>> subsetsWithDup(vector<int>& nums) {
     return rlist;
 }
 
+// LC :: 212
+class TrieNode{
+ public:   
+    char val;
+    bool found;
+    bool seen;
+    unordered_map<char, TrieNode*> child;
+    TrieNode(char v): val(v),found(false),seen(false) {}
+};
+
+class Trie{
+public:
+    TrieNode *root;
+    Trie() {
+        root = new TrieNode('#');
+    }
+    void addword(string s) {
+        TrieNode *node = root;
+        for (char c : s) {
+            if(node->child.count(c) == 0) {
+                node->child[c] = new TrieNode(c);
+            }
+            node = node->child[c];
+        }
+        node->found = true;
+    }
+
+};
+
+void findWordsRec(vector<vector<char>>& b, TrieNode *node, int r, int c, vector<string> &rlist, string res) {
+    if (r < 0 || c < 0 || r >= b.size() || c >= b[0].size() || b[r][c] == '*')
+        return;
+    if (node->child.count(b[r][c]) == 0)
+        return;
+    node = node->child[b[r][c]];
+    res += b[r][c];
+    if (node->found) {
+        if (!node->seen) {
+            rlist.push_back(res);
+            node->seen = true;
+        }
+    }
+    b[r][c] = '*';
+    findWordsRec(b, node, r + 1, c, rlist, res);
+    findWordsRec(b, node, r - 1, c, rlist, res);
+    findWordsRec(b, node, r, c + 1, rlist, res);
+    findWordsRec(b, node, r, c - 1, rlist, res);
+    b[r][c] = res.back();
+    res.pop_back();
+}
+
+vector<string> findWords(vector<vector<char>>& board, vector<string>& words) {
+        Trie trie;
+        for (auto w : words) {
+            trie.addword(w);
+        }
+        vector<string> rlist;
+        for (int i = 0; i < board.size(); i++) {
+            for (int j = 0; j < board[0].size(); j++) {
+                string res = "";
+                findWordsRec(board, trie.root, i, j, rlist, res);
+            }
+        }
+        return rlist;
+        
+}
+
+// LC :: 301
+
+void removeParenRec(string s, int index, int left, int right, 
+                    int leftRem, int rightRem, 
+                    string res, unordered_set<string> &pset) {
+    if (index == s.length()) {
+        if(leftRem == 0 && rightRem == 0)
+            pset.insert(res);
+        return;
+    }
+    char ch = s[index];
+    if (ch == '(' && leftRem > 0) {
+        removeParenRec(s, index + 1, left, right, leftRem - 1, rightRem, res, pset);
+    }
+    if (ch == ')' && rightRem > 0) {
+        removeParenRec(s, index + 1, left, right, leftRem, rightRem - 1, res, pset);
+    }
+    res += ch;
+    if (ch != '(' && ch != ')') {
+        removeParenRec(s, index + 1, left, right, leftRem, rightRem, res, pset);
+    } else if (ch == '(') {
+        removeParenRec(s, index + 1, left + 1, right, leftRem, rightRem, res, pset);
+    } else if (left > right) {
+        removeParenRec(s, index + 1, left, right + 1, leftRem, rightRem, res, pset);
+    }
+    res.pop_back();
+
+}
+
+// LC :: 267
+
+void generatePalRec(string &res, unordered_map<char, int> &fmap, vector<string> &rlist, int sz) {
+    if (res.size() == sz){
+        rlist.push_back(res);
+        return;
+    }
+    for (auto [k,v] : fmap) {
+        if (fmap[k]) {
+            fmap[k] -= 2;
+            string st = k+res+k;
+            generatePalRec(st, fmap, rlist, sz);
+            fmap[k] += 2;
+        }
+    }
+}
+vector<string> generatePalindromes(string s) {
+    unordered_map<char, int> fmap;
+    for (char c : s) {
+        fmap[c]++;
+    }
+    char ch = '.';
+    int count = 0;
+    for (auto [k,v]: fmap) {
+        if (fmap[k] % 2 != 0){
+            ch = k;
+            count++;
+        }
+    }
+
+    if (count > 1) 
+        return {};
+    
+    string res = "";
+    vector<string> rlist;
+    if (ch != '.'){
+        res += ch;
+        fmap[ch]--;
+    }
+
+    generatePalRec(res, fmap, rlist, s.size());
+    return rlist;
+}
+
+vector<string> removeInvalidParentheses(string s) {
+    int lc = 0, rc = 0;
+    for (char ch : s) {
+        if (ch == '(')
+            lc++;
+        else if(ch==')') {
+            lc--;
+            if(lc < 0){
+                lc = 0;
+                rc++;
+            }
+        }
+    }
+    string res = "";
+    unordered_set<string> pset;
+    removeParenRec(s, 0, 0, 0, lc, rc, res, pset);
+    vector<string> rlist(pset.begin(), pset.end());
+    return rlist;
+
+}
+
 // LC :: 131
 bool isPal(string s) {
     int l = 0, r = s.size()-1;
@@ -216,6 +377,7 @@ bool isPal(string s) {
     }
     return l > r; 
 }
+
 void partitionRec(string s, int index, vector<string> &tlist, vector<vector<string>> &rlist) {
     if (index == s.size()) {
         rlist.push_back(tlist);
@@ -237,6 +399,86 @@ vector<vector<string>> partition(string s) {
     return rlist;
 }
 
+// LC :: 680
+
+pair<int, int> isPal(string s, int l, int r) {
+    while (l <= r && s[l] == s[r]){
+        l++;
+        r--;
+    }
+    return make_pair(l,r); 
+}
+
+bool validPalindrome(string s) {
+    auto p = isPal(s, 0, s.size()-1);
+    if (p.first > p.second) 
+        return true;
+    else {
+        auto p1 = isPal(s, p.first + 1, p.second);
+        auto p2 = isPal(s, p.first, p.second -1);
+        return (p1.first>p1.second) || (p2.first > p2.second);
+    }
+}
+
+// LC :: 934 
+
+void dfsColorIsland(vector<vector<int>>& grid, int r , int c, int color, queue<pair<int,int>> &q) {
+    if (r < 0 || c < 0 || r >= grid.size() || c >= grid[0].size() || grid[r][c] != 1)
+        return;
+    
+    grid[r][c] = color;
+    q.push({r,c});
+    dfsColorIsland(grid, r + 1, c, color, q);
+    dfsColorIsland(grid, r - 1, c, color, q);
+    dfsColorIsland(grid, r, c + 1, color, q);
+    dfsColorIsland(grid, r, c - 1, color, q);
+
+}
+bool expandIsland(vector<vector<int>>& grid, queue<pair<int,int>> &q, pair<int,int> u) {
+    int x[4] = {-1, 1, 0, 0};
+    int y[4] = {0, 0, -1, 1};
+    for (int i = 0; i < 4; i++) {
+        int r = u.first + x[i];
+        int c = u.second + y[i];
+        if (r < 0 || c < 0 || r >= grid.size() || c >= grid[0].size()) 
+            continue;
+        if (grid[r][c] == 1) 
+            return true;
+        if (grid[r][c] == 0) {
+            grid[r][c] = grid[u.first][u.second] + 1;
+            q.push({r,c});
+        } 
+    }
+    return false;
+}
+
+int shortestBridge(vector<vector<int>>& grid) {
+    int i, j;
+    queue<pair<int,int>> q;
+    // color one of the island to 2
+    for (i = 0; i < grid.size(); i++) {
+        for (j = 0; j < grid[0].size(); j++) {
+            if (grid[i][j] == 1) {
+                dfsColorIsland(grid, i, j, 2, q);
+                break;
+            }
+        }
+        if (j != grid[0].size())
+            break;
+    }
+
+
+
+    while (!q.empty()) {
+        auto u = q.front();
+        q.pop();
+        if (expandIsland(grid, q, u))
+            return grid[u.first][u.second] - 2;
+
+    }
+    return -1;
+    
+}
 // LC :: 240 
 // non recusive 
 bool searchMatrixV2(vector<vector<int>>& matrix, int target) {
