@@ -465,7 +465,6 @@ vector<ListNode*> splitListToParts(ListNode* head, int k) {
     int rem  = n % k;
     int div = n / k;
     vector<ListNode*> res;
-    int i = 0;
     while(k) {
         ListNode dummy;
         dummy.next = cur;
@@ -520,6 +519,112 @@ vector<int> nodesBetweenCriticalPoints(ListNode* head) {
     return res;
 }
 
+// LC :: 24
+ListNode* swapPairs(ListNode* head) {
+    if (!head) return nullptr;
+    ListNode* dummy = new ListNode();
+    dummy->next = head;
+    ListNode* prev = dummy;
+    ListNode* f = head;
+    ListNode* s = head->next;
+    while (f && s) {
+        f->next = s->next;
+        s->next = f; 
+        prev->next = s;
+        prev = f;
+        f = f->next;
+        if (f)
+            s = f->next;
+    }
+    return dummy->next;
+}
+
+// LC :: 206
+
+ListNode* reverseList(ListNode* head) {
+
+    ListNode *cur = head, *prev = nullptr;
+    while (cur) {
+        ListNode* nn = cur->next;
+        cur->next = prev;
+        prev = cur; 
+        cur = nn;;
+    } 
+    return prev;
+    
+}
+
+// LC :: 83
+
+ListNode* deleteDuplicates_83(ListNode* head) {
+    ListNode* dummy = new ListNode(-200);
+    ListNode* unq = dummy, *cur = head;
+    dummy->next = head;
+    while(cur) {
+        if(unq->val != cur->val) {
+            unq->next = cur;
+            unq = unq->next;
+        }
+        cur = cur->next;
+    }
+    unq->next = nullptr;
+    return dummy->next;
+    
+}
+// With actual delete code same approcah as above
+ListNode* deleteDuplicatesV2(ListNode* head) {
+    ListNode* dummy = new ListNode(-200);
+    ListNode* unq = dummy, *cur = head;
+    dummy->next = head;
+    while(cur) {
+        if(unq->val != cur->val) {
+            unq->next = cur;
+            unq = unq->next;
+            cur = cur->next;
+        } else {
+            ListNode* d = cur;
+            cur = cur->next;
+            delete d;
+        }
+    }
+    unq->next = nullptr;
+    return dummy->next; 
+}
+
+// LC :: 876
+
+ListNode* middleNode(ListNode* head) {
+    if (!head) return nullptr;
+    ListNode* slow = head;
+    ListNode* fast = head;
+    while(fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    return slow;
+
+}
+
+// LC :: 142
+ListNode *detectCycle(ListNode *head) {
+    if(!head || !head->next) return nullptr;
+    ListNode* slow = head;
+    ListNode* fast = head;
+    while(fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+        if (slow == fast)
+            break;
+    }
+    if (slow!=nullptr && slow != fast) 
+        return nullptr;
+    slow = head;
+    while (slow != fast) {
+        slow = slow->next;
+        fast = fast->next;
+    }
+    return slow;  
+}
 
 int main(){
     return 0;
