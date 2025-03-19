@@ -436,6 +436,7 @@ TreeNode* deserialize(string data) {
 int minhz;
 int maxhz;
 
+// LC :: 314
 void minmaxdist(TreeNode* root, int dist){
     if (root == nullptr)
         return;
@@ -478,6 +479,8 @@ vector<vector<int>> verticalOrderV2(TreeNode* root) {
     if (!root) {
         return rlist;
     }
+    // we are using a oderdered map aka TreeMap so that when we iterate on 
+    // the map we can iterate from lowest key to highest key
     map<int,vector<int>> hashmap;
     queue<pair<int, TreeNode*>> q;
     q.push(make_pair(0, root));
@@ -500,7 +503,7 @@ vector<vector<int>> verticalOrderV2(TreeNode* root) {
     }
     return rlist;
 }
-
+// LC :: 987
 vector<vector<int>> verticalTraversal(TreeNode* root) {
     vector<vector<int>> rlist;
     if (!root)
@@ -908,6 +911,218 @@ bool isSubPath(ListNode* head, TreeNode* root) {
         return false;
     return dfs(head, root);
     
+}
+
+// LC :: 95 
+// This is implemented using DP memoization
+// we keep a memoization dp (tree root list)for (start,end) pair
+vector<TreeNode*> genBST(int start, int end, unordered_map<int, vector<TreeNode*>> &dp) {
+    vector<TreeNode*> rlist;
+    if (start > end){
+        rlist.push_back(nullptr);
+        return rlist;
+    }
+    auto cmp = [&start, &end](){return start*100 + end;};
+    if (dp.count(cmp())) {
+        return dp[cmp()];
+    }
+
+    for (int i = start; i <= end; i++){
+        vector<TreeNode*> leftList = genBST(start, i -1, dp);
+        vector<TreeNode*> righList = genBST(i+1,end, dp);
+
+        for (const auto& left : leftList){
+            for (const auto& right: righList){
+                TreeNode* root = new TreeNode(i);
+                root->left = left;
+                root->right= right;
+                rlist.push_back(root);
+            }
+        }
+    }
+    dp[cmp()] = rlist;
+    return rlist;
+}
+
+// LC :: 865
+pair<TreeNode*, int> subTreeDeepRec(TreeNode* root) {
+    if(!root) {
+        return {nullptr, 0};
+    }
+    auto lsTree = subTreeDeepRec(root->left);
+    auto rsTree = subTreeDeepRec(root->right);
+    if (lsTree.second == rsTree.second) {
+        return {root, lsTree.second + 1};
+    } else {
+        auto &sTree = lsTree.second > rsTree.second ? lsTree: rsTree;
+        return {sTree.first, sTree.second + 1}; 
+    }
+}
+TreeNode* subtreeWithAllDeepest(TreeNode* root) {
+    auto sTree = subTreeDeepRec(root);
+    return sTree.first;
+}
+
+vector<TreeNode*> generateTreesDP(int n) {
+    unordered_map<int, vector<TreeNode*>> dp;
+    return genBST(1,n, dp);
+}
+
+// LC :: 110
+
+int getHeightBalancedTree(TreeNode* root) {
+    if (!root)
+        return 0;
+    int left = getHeightBalancedTree(root->left);
+    if (left == -1)
+        return -1;
+    int right = getHeightBalancedTree(root->right);
+    if (right == -1)
+        return -1;
+    if(std::abs(right - left) > 1)
+        return -1;
+    return 1 + std::max(left, right);
+}
+bool isBalanced(TreeNode* root) {
+    return getHeightBalancedTree(root) == -1 ? false : true;
+}
+
+// LC :: 111
+
+int minDepth(TreeNode* root) {
+    if (!root)
+        return 0;
+    int left = minDepth(root->left);
+    int right = minDepth(root->right);
+    if (left == 0) 
+        return 1 + right;
+    else if (right == 0)
+        return 1 + left;
+    else
+        return 1 + std::min(left, right);
+
+}
+
+// LC :: 235
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (!root || p == root || q == root)
+        return root;
+    if(root->val > p->val && root->val > q->val) {
+        return lowestCommonAncestor(root->left, p, q);
+    } else if (root->val < p->val && root->val < q->val){
+        return lowestCommonAncestor(root->right, p, q);
+    } else 
+        return root;
+    
+}
+
+TreeNode* lowestCommonAncestorV2(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (!root) return nullptr;
+    vector<int> pathP;
+    vector<int> pathQ;
+    TreeNode* cur = root;
+    while (cur) {
+        pathP.push_back(cur->val);
+        if(p->val == cur->val) 
+            break;
+        else if (cur->val > p->val){
+            cur = cur->left;
+        } else 
+            cur = cur->right;
+    }
+    cur = root;
+    while (cur) {
+        pathQ.push_back(cur->val);
+        if(q->val == cur->val) 
+            break;
+        else if (cur->val > q->val){
+            cur = cur->left;
+        } else 
+            cur = cur->right;
+    }
+    int sz = pathP.size() < pathQ.size() ? pathP.size() : pathQ.size();
+    int last = 0;
+    for (int i = 0; i < sz; i++){
+        if (pathP[i] != pathQ[i])
+            break;
+        last = pathP[i];
+    }
+    cur = root;
+    while (cur){
+        if(cur->val == last)
+            return cur;
+        else if (cur->val>last)
+            cur = cur->left;
+        else
+            cur = cur->right;
+    }
+    return nullptr;
+}
+
+// LC :: 938
+
+int rangeSumBST(TreeNode* root, int low, int high) {
+    if (!root)
+        return 0;
+    if (root->val > high)
+        return rangeSumBST(root->left, low, high);
+    else if (root->val < low)
+        return rangeSumBST(root->right, low, high);
+    else
+        return root->val 
+            + rangeSumBST(root->left, low, root->val - 1) 
+            + rangeSumBST(root->right, root->val + 1, high);       
+}
+
+// LC :: 257
+
+void binaryTreePathsRec(TreeNode* root, string path, vector<string> &rlist) {
+    if(!root) return;
+    string oldPath = path;
+    if(!root->right && !root->left) {
+        path += std::to_string(root->val);
+        rlist.push_back(path);
+        path = oldPath;
+        return;
+    }
+
+    path += std::to_string(root->val) + "->";
+    binaryTreePathsRec(root->left, path, rlist);
+    binaryTreePathsRec(root->right, path, rlist);
+    path = oldPath;
+
+
+}
+vector<string> binaryTreePaths(TreeNode* root) {
+    vector<string> rlist;
+    binaryTreePathsRec(root, "",rlist);
+    return rlist;
+}
+
+// LC :: 331 
+
+vector<string> split(string &s, char delim){
+    istringstream tokenstrm(s);
+    string token;
+    vector<string> tokens;
+    while(std::getline(tokenstrm, token, delim)){
+        tokens.push_back(token);
+    }
+    return tokens;
+}
+
+bool isValidSerialization(string preorder) {
+    vector<string> ndList = split(preorder,',');
+    int slots = 1;
+    for (string nd: ndList){
+        slots -= 1;
+        if (slots < 0) 
+            return false;
+        if (nd!="#")
+            slots += 2;
+
+    }
+    return slots == 0;
 }
 
 int main()

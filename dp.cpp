@@ -239,7 +239,7 @@ int rob2(vector<int>& nums) {
 }
 
 // LC :: 213
-int rob(vector<int>& nums) {
+int rob_213(vector<int>& nums) {
     if (nums.size() == 0) return 0;
     int last = 0;
     int lastlast = 0;
@@ -305,7 +305,7 @@ int minPathSum2(vector<vector<int>>& grid) {
 
 // LC :: 63
 
-int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+int uniquePathsWithObstacles_63(vector<vector<int>>& obstacleGrid) {
     unsigned int n = obstacleGrid.size();
     unsigned int m = obstacleGrid[0].size();
     vector<vector<int>> dp(n, vector<int> (m, 0));
@@ -411,7 +411,7 @@ int rotatedDigits(int n) {
 }
 
 // non DP solution O(n*d) the DP solution is better and easy
-int rotatedDigits(int n) {
+int rotatedDigits_non_DP(int n) {
     std::unordered_map<char, char> dict = {
         {'0','0'},
         {'1','1'},

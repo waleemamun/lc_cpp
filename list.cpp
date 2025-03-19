@@ -626,6 +626,109 @@ ListNode *detectCycle(ListNode *head) {
     return slow;  
 }
 
+// LC :: 160
+
+ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+    ListNode *lsA = headA;
+    ListNode *lsB = headB;
+    int lenA = 0;
+    int lenB = 0;
+    while(lsA) {
+        lsA = lsA->next;
+        lenA++;
+    }
+    while(lsB) {
+        lsB = lsB->next;
+        lenB++;
+    }
+    int diff = std::abs(lenA - lenB);
+    lsA = headA;
+    lsB = headB;
+
+    while (lsB && lsA && diff) {
+        diff--;
+        if (lenB>lenA){
+            lsB = lsB->next;
+        } else {
+            lsA = lsA->next;
+        }
+    }
+    while(lsA && lsB && lsA != lsB) {
+        lsA = lsA->next;
+        lsB = lsB->next;
+    }
+    return lsA;
+}
+
+// LC :: 328
+ListNode* oddEvenList(ListNode* head) {
+    ListNode *dmOdd = new ListNode();
+    ListNode *dmEven = new ListNode();
+    ListNode *cur = head;
+    ListNode *pOdd = dmOdd, *pEven = dmEven;
+    int count = 1;
+    while(cur){
+        if (count & 0x1) {
+            pOdd->next = cur;
+            pOdd = pOdd->next;
+        } else {
+            pEven->next = cur;
+            pEven = pEven->next;
+        }
+        cur = cur->next;
+        count++;
+    }
+    pEven->next = nullptr;
+    pOdd->next = dmEven->next;
+    return dmOdd->next;
+    
+}
+
+// LC :: 234
+
+ListNode* revList(ListNode* head) {
+    ListNode* prev = nullptr;
+    ListNode* cur = head;
+    while(cur) {
+        ListNode* nn = cur->next;
+        cur->next = prev;
+        prev = cur;
+        cur = nn;
+    }
+    return prev;
+}
+bool isPalindrome(ListNode* head) {
+    if(!head || !head->next) 
+        return true;
+    stack<ListNode*> stk;
+    ListNode *slow = head;
+    ListNode *fast = head->next;
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    fast = slow->next;
+    slow->next = nullptr;
+    ListNode* fend = slow;
+
+    slow = head;
+    fast = revList(fast);
+    ListNode* lastHalf = fast;
+    bool isPal = true;
+    while (fast) {
+        if(slow->val != fast->val) {
+            isPal = false;
+            break;
+        }
+        slow = slow->next;
+        fast = fast->next;
+    }
+    lastHalf = revList(lastHalf);
+    fend->next = lastHalf;
+    return isPal;
+}
+
+
 int main(){
     return 0;
 }

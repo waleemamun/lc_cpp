@@ -7,6 +7,8 @@
 #include <map>
 #include <functional>
 #include <algorithm>
+#include <vector>
+#include <stack>
 
 using namespace std;
 class MedianFinder {
@@ -317,6 +319,41 @@ public:
         return searchRec(root, word, 0);
     }
 };
+
+class Node {
+    public:
+        int val;
+        vector<Node*> children;
+    
+        Node() {}
+    
+        Node(int _val) {
+            val = _val;
+        }
+    
+        Node(int _val, vector<Node*> _children) {
+            val = _val;
+            children = _children;
+        }
+    };
+
+// LC :: 589
+vector<int> preorder(Node* root) {
+    if (!root) return {};
+    stack<Node*> stk;
+    vector<int> rlist;
+    stk.push(root);
+    while (!stk.empty()){
+        root = stk.top();
+        rlist.push_back(root->val);
+        stk.pop();
+        while(root->children.size()!=0){
+            stk.push(root->children.back());
+            root->children.pop_back();
+        }
+    }
+    return rlist;
+}
 
 int main()
 {
