@@ -64,7 +64,13 @@ int main(){
     component *decA = new concrete_decoratorA(cmp);
     component *decB = new concrete_decoratorB(decA);
     component *decC = new concrete_decoratorC(decB);
-    string output = decC->cost();
+    string output = cmp->cost();
+    printf("output before decoration:-> %s :: \n",output.c_str());
+    output = decA->cost();
+    printf("output after decoration:-> %s :: \n",output.c_str());
+    output = decB->cost();
+    printf("output after decoration:-> %s :: \n",output.c_str());
+    output = decC->cost();
     printf("output after decoration:-> %s :: \n",output.c_str());
     delete decC;
     return 0;

@@ -11,6 +11,7 @@
 #include <queue>
 #include <stack>
 #include <deque>
+#include <list>
 #include <functional>
 #include "tree.h"
 using namespace std;
@@ -84,18 +85,21 @@ int main() {
     for (int i = 0; i < 6; i++) {
         printf("%d\n", arr[i]);
     }
-    int n = 6;
+    int n = 10;
+    printf("vectors\n");
     vector<int> vec(n);
     vec.insert(vec.begin() ,1);
     for (int i = 0; i < n; i++) {
-        vec[i] = i;
+        vec[i] = i*10;
         printf("%d\n", vec[i]);
     }
-    vec.pop_back();
-    printf("vec pop\n");
+   
+    
+    printf("vec pop size = %zu \n",vec.size());
     for (int a: vec) {
         printf("vc = %d\n", a);
     }
+    printf("vec pop size = %zu \n",vec.size());
     // Define an ordered map with a lambda function as custom comparator
     auto caseInsensitiveCompare = [](const std::string& a, const std::string& b) {
         return std::lexicographical_compare(
@@ -118,8 +122,8 @@ int main() {
     hashMap["orrange"] = 2;
     hashMap["ice"] = 3;
 
-    for (const auto& key: hashMap) {
-        cout << key.first << " == " << key.second << endl;
+    for (const auto &[k,v]: hashMap) {
+        cout <<" k = " << k << " # v = " << v << endl;
     }
     if (hashMap.find("apple") != hashMap.end()) {
         cout << "apple found" << endl;
@@ -128,17 +132,19 @@ int main() {
         cout << "three found" << endl;
     }
 
-    if (hashMap.find("kaka") == hashMap.end()) {
+    if (hashMap.count("kaka") == 0) {
         cout << "kaka not found" << endl;
     }
     hashMap.insert({"kaka",4});
-    if (hashMap.find(("kaka"))!= hashMap.end() ) {
+    if (hashMap.count("kaka")) {
         cout << "kaka found" << endl;
     }
     int tArray[] = {5, 2, 18, 1, 9, 20, 8}; 
     int hArray[] = {5, 2, 8, 1, 9, 2, 8}; 
 
     auto revcmp = [](int a, int b) { return a > b; };
+    // set initializer
+    // use an array/vector to initialize the set
     set<int> treeSet(begin(tArray), end(tArray));
     set<int, decltype(revcmp)> treeSet1(vec.begin(), vec.end(), revcmp);
     unordered_set<int> hashSet(begin(hArray), end(hArray));
@@ -166,6 +172,7 @@ int main() {
     for (int i = 0; i < 5; i++) {
         que.push(i);
     }
+
     printf("\nqueue\n");
     while(!que.empty()) {
         cout << que.front() << " ";
@@ -215,7 +222,23 @@ int main() {
     }
     // vc1.insert(vc1.begin() + 20, -100);
     // cout<<vc1[20]<< " res"<< endl;
-
+    list<int> lst;
+    for (int i = 0; i < 5; i++) {
+        lst.push_back(i);
+        lst.push_front(i+10);
+    }
+    cout<<"\nlist size = "<< lst.size() << endl;
+    cout<<"list front = "<< lst.front() << " back = "<< lst.back() << endl;
+    lst.pop_back();
+    lst.pop_front();
+    for (const auto& elem: lst) {
+        cout << elem << " ";
+    }
     printf("\nHello World\n"); 
+    string str = "Let's talk about ollama bot and chatgpt bot";
+    cout<< "first char = "<<*str.begin() << " front = "<< str.front() << endl;
+    cout<< "last char = "<<*(str.end()-1) <<  " end char  = "<< str.back() <<endl;
+    cout<< "str size = "<< str.size() << " bot first char = "<< str.find("bot") << "bot last"<<str.rfind("bot") << endl;
+
     return 0;
 }

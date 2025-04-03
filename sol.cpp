@@ -1111,6 +1111,20 @@ vector<int> twoSum(vector<int>& numbers, int target) {
     return {0, 0}; 
 }
 
+// LC :: 1
+vector<int> twoSumV2(vector<int>& nums, int target) {
+    int len = nums.size();
+    unordered_map <int, int> map; 
+    for (int i = 0; i< len; i++) {
+        int diff = target - nums[i];
+        if (map.count(diff)) {
+            return {map[diff], i};
+        }
+        map[nums[i]] = i;
+    }
+    return {};
+}
+
 bool isSubsequence(string s, string t) {
     int i = 0, j = 0;
     while (i < s.size() && j < t.size()){

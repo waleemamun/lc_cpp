@@ -5,6 +5,9 @@
 #include <queue>
 #include <semaphore>  // For std::counting_semaphore
 #include <vector>
+#include <atomic>
+using namespace std;
+
 
 // A mutex is a synchronization primitive 
 // used to protect shared resources in multithreaded environments
@@ -176,6 +179,26 @@ void test_unique_lock() {
     t2.join();
 }
 
+std::atomic<int> counter(0);
+void atomic_increment(int thread_id) {
+    std::cout << "Thread " << thread_id << " incrementing counter.\n" << std::endl;
+    for (int i = 0; i < 1000; ++i) {
+        ++counter;
+    }
+}
+void test_atomic() {
+    vector<thread> threads;
+    for (int i = 0; i < 5; ++i) {
+        threads.push_back(std::thread(atomic_increment, i));
+    }
+    
+    for (auto& th : threads) {
+        th.join();
+    }
+    // Print the final value of the counter
+    std::cout << "Final counter value: " << counter.load() << std::endl;
+}
+
 int main(int argc, char* argv[]) {
     if (argv[1] == nullptr) {
         std::cout << "Please provide a test case number." << std::endl;
@@ -195,6 +218,12 @@ int main(int argc, char* argv[]) {
     } else if (std::string(argv[1]) == "semaphore") {
         std::cout << "Running semaphore test..." << std::endl;
         test_semaphore();
+    } else if (std::string(argv[1]) == "unique_lock") {
+        std::cout << "Running unique lock test..." << std::endl;
+        test_unique_lock();
+    } else if (std::string(argv[1]) == "atomic") {
+        std::cout << "Running atomic test..." << std::endl;
+        test_atomic();
     } 
     else {
         std::cout << "Invalid test case number." << std::endl;
