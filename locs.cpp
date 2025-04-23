@@ -35,11 +35,11 @@ bool dataReady = false; // Flag to indicate if data is ready
 // The template argument specifies the maximum number of threads that can acquire the semaphore at once.
 std::counting_semaphore<3> semaphore(3);
 
-void task(int id) {
+void task(int id, int sleepTime) {
     // Wait (decrement) semaphore
     semaphore.acquire();
     std::cout << "Thread " << id << " is in the critical section." << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::seconds(sleepTime)); // Simulate work
     std::cout << "Thread " << id << " is leaving the critical section." << std::endl;
     // Signal (increment) semaphore
     semaphore.release();
@@ -48,7 +48,7 @@ void task(int id) {
 int test_semaphore() {
     std::vector<std::thread> threads;
     for (int i = 0; i < 5; ++i) {
-        threads.push_back(std::thread(task, i));
+        threads.push_back(thread(task, i, 1));
     }
 
     // Wait for all threads to finish
@@ -91,11 +91,12 @@ void producer() {
     // This is a good practice to avoid deadlocks and ensure proper resource management
     // std::lock_guard is a lightweight wrapper around std::mutex
     // that provides a convenient way to lock and unlock the mutex.
-    std::lock_guard<std::mutex> lock(mtx);
-    
-    dataQueue.push(100);  // Produce data
-    dataReady = true;
-    std::cout << "Producer: Data produced." << std::endl;
+    {   std::lock_guard<std::mutex> lock(mtx);
+        
+        dataQueue.push(100);  // Produce data
+        dataReady = true;
+        std::cout << "Producer: Data produced." << std::endl;
+    }
     // Notify one waiting consumer
     // This will wake up one thread that is waiting on the condition variable
     // The notify_one() function is used to wake up one waiting thread

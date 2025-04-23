@@ -2130,6 +2130,105 @@ string removeOccurrences(string s, string part) {
     return s;
 }
 
+// LC :: 347
+vector<int> topKFrequent(vector<int>& nums, int k) {
+    unordered_map<int,int> fmap;
+    int mxFreq = 0;
+    for (auto n : nums) {
+        fmap[n]++;
+        mxFreq = std::max(mxFreq, fmap[n]);
+    }
+    vector<vector<int>> bucket(mxFreq + 1);
+    for (auto [k,v] : fmap) {
+        bucket[v].push_back(k);
+    }
+    vector<int> res;
+    for (int i = mxFreq; i>=0; i--) {
+        if(bucket[i].size() <= k){
+            k-=bucket[i].size();
+            res.insert(res.end(), bucket[i].begin(), bucket[i].end());
+        }
+        if (k <=0) break;
+    }
+    return res; 
+}
+
+// LC :: 1679
+
+int maxOperations(vector<int>& nums, int k) {
+    unordered_map<int, int> omap;
+    int count = 0;
+    for (unsigned int i = 0; i < nums.size(); i++){
+        if (omap.count(k - nums[i])) {
+            count++;
+            omap[k-nums[i]]--;
+            if (omap[k-nums[i]]==0){
+                omap.erase(k - nums[i]);
+            }
+            continue;
+        }
+        omap[nums[i]]++;
+    }
+    return count; 
+    
+}
+
+// LC :: 443
+
+int compress(vector<char>& chars) {
+    unsigned int i = 0;
+    int pos = 0;
+    while (i < chars.size()) {
+        int count  = 1;
+        while (i + 1 < chars.size() && chars[i] == chars[i+1]) {
+            i++;
+            count++;
+        }
+        chars[pos++] = chars[i];
+        if (count != 1) {
+            string val = to_string(count);
+            for (auto v : val) {
+                chars[pos++] = v;
+            }
+        }
+        i++;       
+        
+    }
+    return pos;
+}
+
+// LC :: 1456
+int maxVowels(string s, int k) {
+    unsigned int l = 0, r = 0;
+    unordered_set<char> vowels = {'a','e','o','i', 'u'};
+    int maxCount = 0;
+    int vc = 0;
+    while (r < s.size()) {
+        if(vowels.count(s[r]))
+            vc++;
+        if(r - l + 1 == k) {
+            maxCount = std::max(vc,maxCount);
+            if (vowels.count(s[l]))
+                vc--;
+            l++;
+        }
+        r++;
+    }
+    return maxCount;
+    
+}
+
+// LC :: 1732 
+int largestAltitude(vector<int>& gain) {
+    int sum = 0;
+    int maxGain = 0;
+    for (auto g : gain) {
+        sum += g;
+        if (sum>0)
+            maxGain = max(maxGain,sum);
+    }
+    return maxGain;
+}
 
 int main(){
     return 0;

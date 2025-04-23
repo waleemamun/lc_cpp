@@ -728,7 +728,40 @@ bool isPalindrome(ListNode* head) {
     return isPal;
 }
 
+void revlist2(ListNode *&head){
+    ListNode* prev = nullptr;
+    ListNode* cur = head;
+    while(cur) {
+        ListNode* nn = cur->next;
+        cur->next = prev;
+        prev = cur;
+        cur = nn;
+    }
+    head = prev;
+    return;
+}
+
+void print_my_list(ListNode* head) {
+    ListNode* cur = head;
+    printf("List ::");
+    while (cur) {
+        printf("%d ",cur->val);
+        cur= cur->next;
+    }
+    printf("\n");
+}
+
 
 int main(){
+    ListNode* dummy = new ListNode(-1);
+    ListNode* cur = dummy;
+    for (int i = 0; i<19; i++) {
+        ListNode* n = new ListNode(i);
+        cur->next = n;
+        cur = cur->next;
+    }
+    print_my_list(dummy->next);
+    revlist2(dummy->next);
+    print_my_list(dummy->next);
     return 0;
 }

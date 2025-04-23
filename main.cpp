@@ -239,6 +239,36 @@ int main() {
     cout<< "first char = "<<*str.begin() << " front = "<< str.front() << endl;
     cout<< "last char = "<<*(str.end()-1) <<  " end char  = "<< str.back() <<endl;
     cout<< "str size = "<< str.size() << " bot first char = "<< str.find("bot") << "bot last"<<str.rfind("bot") << endl;
+    unordered_set<string> strSet;
+    strSet.insert("ollama");
+    strSet.insert("chatgpt");
+    strSet.insert("ollama");
+    int arrx[10];
+    for (int i = 0; i < 10; i++){
+        arrx[i] = i*10+2;
+    }
+    vector<int> vc12(begin(arrx),end(arrx));
+    vc12.insert(vc12.end(), treeSet.rbegin(), treeSet.rend());
+    printf("vc12 size = %zu \n",vc12.size());
+    for (auto &v: vc12) {
+        printf("%d ", v);
+    }
+    printf("\n");
+    auto mscmp = [](const int& a, const int& b){
+        return a>b;
+    };
+    printf("\n Multieset reverser oreder\n");
+    multiset<int, decltype(mscmp)> mlset(vc12.begin(), vc12.end(), mscmp);
+    
+    for (auto &m : mlset) {
+        printf("%d ",m);
+    }
+    
+    printf("\n Multieset regular order oreder\n");
+    for (auto rit = mlset.rbegin(); rit!=mlset.rend(); rit++){
+        cout << *rit << " ";
+    }
+
 
     return 0;
 }
