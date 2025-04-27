@@ -2230,6 +2230,49 @@ int largestAltitude(vector<int>& gain) {
     return maxGain;
 }
 
+// LC :: 204
+// The idea is to use the sieve of Eratosthenes to find all the prime numbers
+// less than n, we can use a vector to keep track of the prime numbers
+// we start with all the numbers as prime and then we iterate through the numbers
+// and mark the multiples of the prime numbers as not prime
+// we can use the square root of n to limit the number of iterations
+// we can use a vector to keep track of the prime numbers
+int countPrimes(int n) {
+    if (n<=2) return 0;
+    vector<bool> isPrime(n, true);
+    for(int i = 2; i <= sqrt(n); i++){
+        if (isPrime[i]) {
+            for (int j = i*i; j < n; j += i) {
+                isPrime[j] = false;
+            }
+        }
+    }
+    int count = 0;
+    for (int i = 2; i< n; i++) {
+        if (isPrime[i])
+            count++;
+    }
+    return count;
+}
+
+// LC :: 268
+int missingNumber(vector<int>& nums) {
+    unsigned int n = nums.size();
+    unsigned int sum = n*(n+1)/2;
+    for(auto n : nums){
+        sum-=n;
+    }
+    return sum;
+}
+
+int missingNumber2(vector<int>& nums) {
+    unsigned int sum = nums.size();
+    for (unsigned int i = 0; i < nums.size(); i++) {
+        sum ^= (i ^ nums[i]);
+    }
+    return sum;
+}
+
 int main(){
     return 0;
 }

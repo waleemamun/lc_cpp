@@ -597,6 +597,43 @@ bool exist(vector<vector<char>>& board, string word) {
     return false;
 }
 
+// LC :: 430
+class Node {
+    public:
+        int val;
+        Node* prev;
+        Node* next;
+        Node* child;
+    };
+Node* flattenRec(Node* head) {
+    if (!head) return head;
+    Node* dummy = new Node();
+    dummy->next = head;
+    Node* cur = head;
+    Node *p = nullptr;
+    while(cur) {
+        Node* chList = flattenRec(cur->child);
+        cur->child = nullptr;
+        p = cur;
+        cur = cur->next;
+        if(chList) {
+            chList->prev->next = cur;
+            p->next = chList->next;
+            chList->next->prev = p;
+            if(cur)
+                cur->prev = chList->prev;
+            p = chList->prev;
+        }
+    }
+    dummy->prev = p;
+    return dummy;
+}
+Node* flatten(Node* head) {
+    if (!head) return head;
+    Node* dummy = flattenRec(head);
+    return dummy->next;
+}
+
 int main(){
     totalNQueens(8);
     return 0;

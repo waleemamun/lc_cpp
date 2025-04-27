@@ -354,6 +354,114 @@ vector<int> preorder(Node* root) {
     }
     return rlist;
 }
+// LC :: 225
+// check V2 for a single queue implementation
+class MyStack {
+    public:
+        queue<int> first;
+        queue<int> second;
+        MyStack() {
+        }
+    
+        void push(int x) {
+    
+            while (!first.empty()){
+                second.push(first.front());
+                first.pop();
+            }
+            first.push(x);
+            while(!second.empty()){
+                first.push(second.front());
+                second.pop();
+            }
+        }
+        
+        int pop() {
+            int val = first.front();
+            first.pop();
+            return val;
+        }
+        
+        int top() {
+            int val = first.front();
+            return val;
+        }
+        
+        bool empty() {
+            return first.empty();
+        }
+    };
+
+    class MyStackV2 {
+        public:
+            queue<int> first;
+            MyStackV2() {
+            }
+        
+            void push(int x) {
+                first.push(x);
+                unsigned int sz = first.size();
+                for (unsigned int i = 0; i < sz - 1; i++){
+                    first.push(first.front());
+                    first.pop();
+                }
+        
+            }
+            
+            int pop() {
+                int val = first.front();
+                first.pop();
+                return val;
+            }
+            
+            int top() {
+                int val = first.front();
+                return val;
+            }
+            
+            bool empty() {
+                return first.empty();
+            }
+        };
+//LC ::  232
+class MyQueue {
+    public:
+        stack<int> first;
+        stack<int> second;
+        MyQueue() {
+            
+        }
+        
+        void push(int x) {
+            while(!first.empty()){
+                second.push(first.top());
+                first.pop();
+            }
+            first.push(x);
+            while(!second.empty()){
+                first.push(second.top());
+                second.pop();
+            }
+            
+        }
+        
+        int pop() {
+            int x = first.top();
+            first.pop();
+            return x;
+        }
+        
+        int peek() {
+            return first.top();
+        }
+        
+        bool empty() {
+            return first.empty();
+        }
+    };
+
+
+    
 
 int main()
 {

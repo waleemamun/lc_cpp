@@ -1125,6 +1125,37 @@ bool isValidSerialization(string preorder) {
     return slots == 0;
 }
 
+// LC :: 99
+// use the inorder traversal to find the two nodes which are not in order
+// and swap them
+// The first node is the first node which is not in order
+// the second node is the last node which is not in order
+void recoverTree(TreeNode* root) {
+    stack<TreeNode*> stk;
+    TreeNode* pred = nullptr;
+    TreeNode *x =nullptr, *y = nullptr;
+    while(root || !stk.empty()) {
+        if (root) {
+            stk.push(root);
+            root = root->left;
+        } else {
+            root = stk.top();
+            stk.pop();
+            if (pred && pred->val > root->val) {
+                y = root;
+                if (x == nullptr)
+                    x = pred;
+                else
+                    break;
+            }
+            pred = root;
+            root = root->right; 
+        }
+    }
+    swap(x->val,y->val);
+    
+}
+
 int main()
 {
     int arr[10] = {1,2,3,4,5,6,7,8,9,10};
